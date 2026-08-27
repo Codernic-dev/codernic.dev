@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codernic Design System & Styleguide Showcase</title>
+  <link rel="stylesheet" href="../src/css/styleguide.css">
+  <style>
+    body { padding: 40px 20px; background-color: var(--neutral-950); }
+    .grid-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .pillar-card { padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+    .swatch { width: 100%; height: 40px; border-radius: var(--radius-sm); margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header style="margin-bottom: 40px; text-align: center;">
+      <span class="badge badge-amber" style="margin-bottom: 12px;">Codernic Sovereign Design System</span>
+      <h1 class="gradient-text-animated">Styleguide Token Showcase</h1>
+      <p style="color: var(--neutral-400); max-width: 600px; margin: 12px auto 0;">
+        Interactive visual specimen testing typography, 5 Sovereignty Pillars color matrix, micro-animations, and responsive cards.
+      </p>
+    </header>
+
+    <!-- Typography Specimen -->
+    <section class="card" style="margin-bottom: 32px;">
+      <h2>Typography Hierarchy</h2>
+      <p style="color: var(--neutral-400);">Outfit (Headings) · Inter (UI/Body) · JetBrains Mono (Code)</p>
+      <hr style="border: none; border-top: 1px solid var(--color-border); margin: 20px 0;">
+      <h1>Heading 1 — Sovereign AI Platform</h1>
+      <h2>Heading 2 — Bare-Metal Execution Determinism</h2>
+      <h3>Heading 3 — Cryptographic Isolation & DLP Protection</h3>
+      <p>Body text rendered in <strong>Inter</strong>. Engineered for enterprise governance, zero external cloud egress, and zero-trust security.</p>
+      <p><code class="code-block">cargo clippy --workspace --all-targets --all-features -- -D warnings</code></p>
+    </section>
+
+    <!-- 5 Sovereignty Pillars Palette Specimen -->
+    <section class="card" style="margin-bottom: 32px;">
+      <h2>5 Sovereignty Pillars Matrix</h2>
+      <div class="grid-pillars">
+        <div class="pillar-card glow-deming" style="background: var(--pillar-deming-bg);">
+          <span class="badge" style="background: rgba(248,113,113,0.2); color: var(--pillar-deming);">01. Execution</span>
+          <h4 style="margin-top: 10px; color: var(--pillar-deming);">Deming Engine</h4>
+          <div class="swatch" style="background-color: var(--pillar-deming);"></div>
+        </div>
+
+        <div class="pillar-card glow-ragtime" style="background: var(--pillar-ragtime-bg);">
+          <span class="badge" style="background: rgba(96,165,250,0.2); color: var(--pillar-ragtime);">02. Memory</span>
+          <h4 style="margin-top: 10px; color: var(--pillar-ragtime);">Ragtime Vault</h4>
+          <div class="swatch" style="background-color: var(--pillar-ragtime);"></div>
+        </div>
+
+        <div class="pillar-card glow-galileus" style="background: var(--pillar-galileus-bg);">
+          <span class="badge" style="background: rgba(74,222,128,0.2); color: var(--pillar-galileus);">03. Governance</span>
+          <h4 style="margin-top: 10px; color: var(--pillar-galileus);">Galileus Arbitrator</h4>
+          <div class="swatch" style="background-color: var(--pillar-galileus);"></div>
+        </div>
+
+        <div class="pillar-card glow-ockham" style="background: var(--pillar-ockham-bg);">
+          <span class="badge" style="background: rgba(45,212,191,0.2); color: var(--pillar-ockham);">04. Optimization</span>
+          <h4 style="margin-top: 10px; color: var(--pillar-ockham);">Ockham Compressor</h4>
+          <div class="swatch" style="background-color: var(--pillar-ockham);"></div>
+        </div>
+
+        <div class="pillar-card glow-pirsig" style="background: var(--pillar-pirsig-bg);">
+          <span class="badge" style="background: rgba(167,139,250,0.2); color: var(--pillar-pirsig);">05. Security</span>
+          <h4 style="margin-top: 10px; color: var(--pillar-pirsig);">Pirsig DLP</h4>
+          <div class="swatch" style="background-color: var(--pillar-pirsig);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons & Interactive Elements -->
+    <section class="card">
+      <h2>Interactive Buttons & Badges</h2>
+      <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 20px;" class="button-group">
+        <button class="btn-primary">Primary Action</button>
+        <span class="badge badge-amber">Active Telemetry</span>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

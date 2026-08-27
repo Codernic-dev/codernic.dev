@@ -1,17 +1,19 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum LicenseTier {
-    #[default]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum LicenseType {
     Free,
-    Pro,
+    NdaTrial(String),
+    Production(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LicensePayload {
-    pub tier: LicenseTier,
-    pub email: String,
-    pub expires_at: Option<u64>,
+    pub tier: LicenseType,
+    pub issued_at: u64,
+    pub expires_at: u64,
+    pub machine_id: Option<String>,
+    pub modules: Vec<String>,
 }
 
 #[derive(Debug, thiserror::Error)]

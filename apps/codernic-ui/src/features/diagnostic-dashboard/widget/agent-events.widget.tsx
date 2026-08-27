@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useSelector } from 'react-redux';
 import { selectIntrospectionEvents } from '../../../features/dag/store/dag.slice';
-import { IconPlay, IconCheck, IconRepeat, IconTool, IconThought, IconDot } from '@ai-agencee/ui';
+import { IconPlay, IconCheck, IconRepeat, IconTool, IconThought, IconDot } from '@codernic/components';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function AgentEventsWidget({ dataTestId }: { dataTestId?: string }) {
   const events = useSelector(selectIntrospectionEvents);

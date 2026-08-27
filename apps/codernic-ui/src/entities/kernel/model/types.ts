@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { AnalyseStepStatus } from '../../../../../codernic-ext/src/features/codernic/model/analyse-runner';
 
 export interface DiagnosticInfo {
@@ -153,6 +158,11 @@ export interface InfraStats {
   vram_total: number;
   vram_available: number;
   vram_required: number;
+  ram_used?: number;
+  ram_total?: number;
+  cpu_usage?: number;
+  daemon_version?: string;
+  hardware_type?: string;
 }
 
 export interface ContextStats {

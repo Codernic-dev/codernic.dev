@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { IconThought, IconShield, IconZap, IconCheckCircle, IconCpu } from '@ai-agencee/ui';
+import { IconThought, IconShield, IconZap, IconCheckCircle, IconCpu } from '@codernic/components';
 import type { CodernicContextFile } from '@binaryjack/state-factories';
 
 import { TokenStatusChip } from './chips/TokenStatusChip';
@@ -7,7 +12,7 @@ import { ResourceStatusChip } from './chips/ResourceStatusChip';
 import { RagStatusChip } from './chips/RagStatusChip';
 import { DaemonStatusChip } from './chips/DaemonStatusChip';
 import { StatusChipBase } from './chips/StatusChipBase';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface StatusBarChipsProps {
   tokenPct: number;

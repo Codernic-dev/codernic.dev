@@ -1,12 +1,17 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useLayoutEngine, type BlockState } from '@ai-agencee/ui/layout-engine';
-import { IconCheck, IconPlus, IconTool, IconLock, IconFolder } from '@ai-agencee/ui';
+import { useLayoutEngine, type BlockState } from '@codernic/components/layout-engine';
+import { IconCheck, IconPlus, IconTool, IconLock, IconFolder } from '@codernic/components';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNotificationRequest } from '../../../../entities/notifications/model/notifications-slice';
 import { selectSandboxMode } from '../../../../entities/app/model/app-slice';
 import { getCodernicHttpUrl } from '../../../../shared/config';
-import { Button, SelectDropdown } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { Button, SelectDropdown } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 export interface LayoutControlsProps {
   savedLayouts: Record<string, Record<string, BlockState>>;
@@ -32,14 +37,10 @@ const { state, dispatch: layoutDispatch } = useLayoutEngine();
     setSavedLayouts(prev => ({ ...prev, [saveName]: currentBlocks }));
     setActiveLayoutName(saveName);
 
-    const baseUrl = getCodernicHttpUrl();
-    if (!sandboxMode) {
-      fetch(`${baseUrl}/api/layouts/${encodeURIComponent(saveName)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentBlocks)
-      }).catch(e => console.error('Failed to save layout', e));
-    }
+    reduxDispatch({ 
+      type: 'layout/saveLayoutRequest', 
+      payload: { name: saveName, blocks: currentBlocks } 
+    });
     
     setSaveName('');
   };
@@ -85,24 +86,10 @@ const { state, dispatch: layoutDispatch } = useLayoutEngine();
     const currentBlocks = JSON.parse(JSON.stringify(state.blocks));
     setSavedLayouts(prev => ({ ...prev, [activeLayoutName]: currentBlocks }));
     
-    const baseUrl = getCodernicHttpUrl();
-    if (!sandboxMode) {
-      fetch(`${baseUrl}/api/layouts/${encodeURIComponent(activeLayoutName)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentBlocks)
-      }).then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-      }).catch(e => {
-        console.error('Failed to save layout', e);
-        reduxDispatch(addNotificationRequest({
-          message: `Failed to save layout "${activeLayoutName}": ${e.message}`,
-          level: 'error'
-        }));
-      });
-    }
+    reduxDispatch({ 
+      type: 'layout/saveLayoutRequest', 
+      payload: { name: activeLayoutName, blocks: currentBlocks } 
+    });
   };
 
   const handleNewLayout = () => {
@@ -114,14 +101,10 @@ const { state, dispatch: layoutDispatch } = useLayoutEngine();
            const currentBlocks = JSON.parse(JSON.stringify(state.blocks));
            setSavedLayouts(prev => ({ ...prev, [name]: currentBlocks }));
            setActiveLayoutName(name);
-           const baseUrl = getCodernicHttpUrl();
-           if (!sandboxMode) {
-             fetch(`${baseUrl}/api/layouts/${encodeURIComponent(name)}`, {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify(currentBlocks)
-             }).catch(e => console.error('Failed to save layout', e));
-           }
+           reduxDispatch({ 
+             type: 'layout/saveLayoutRequest', 
+             payload: { name, blocks: currentBlocks } 
+           });
         } else {
            return;
         }
@@ -144,18 +127,10 @@ const { state, dispatch: layoutDispatch } = useLayoutEngine();
              const currentBlocks = JSON.parse(JSON.stringify(state.blocks));
              setSavedLayouts(prev => ({ ...prev, [name]: currentBlocks }));
              setActiveLayoutName(name);
-             const baseUrl = getCodernicHttpUrl();
-             if (!sandboxMode) {
-               fetch(`${baseUrl}/api/layouts/${encodeURIComponent(name)}`, {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify(currentBlocks)
-               }).then((res) => {
-                 if (!res.ok) {
-                   throw new Error(`HTTP error! status: ${res.status}`);
-                 }
-               }).catch(e => console.error('Failed to save layout', e));
-             }
+             reduxDispatch({ 
+               type: 'layout/saveLayoutRequest', 
+               payload: { name, blocks: currentBlocks } 
+             });
           } else {
              // User cancelled saving, so don't quit edit mode
              return;

@@ -1,5 +1,4 @@
 use ring::hmac;
-use ring::constant_time::verify_slices_are_equal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,8 +19,12 @@ pub fn compute_sig(secret: &str, nonce: &str) -> String {
 }
 
 pub fn verify_sig(secret: &str, nonce: &str, sig: &str) -> bool {
-    let expected = compute_sig(secret, nonce);
-    verify_slices_are_equal(expected.as_bytes(), sig.as_bytes()).is_ok()
+    let key = hmac::Key::new(hmac::HMAC_SHA256, secret.as_bytes());
+    if let Ok(sig_bytes) = hex::decode(sig) {
+        hmac::verify(&key, nonce.as_bytes(), &sig_bytes).is_ok()
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]

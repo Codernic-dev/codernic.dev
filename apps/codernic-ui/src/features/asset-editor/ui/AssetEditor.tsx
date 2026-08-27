@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectEditingAsset, setEditingAsset } from "../../../entities/assets/model/assets-slice";
 import { selectJsonEditorSchemas } from '../../../entities/assets/model/assets-slice';
 import { JsonAccordionEditor } from '../../../shared/ui/json-editor/JsonAccordionEditor';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function AssetEditor() {
   const dispatch = useDispatch();

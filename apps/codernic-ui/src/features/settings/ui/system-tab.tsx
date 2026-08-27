@@ -1,18 +1,18 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendIntent } from '../../../shared/store/intent';
-import { Heading, Text, Button } from '@ai-agencee/ui';
+import { Heading, Text, Button } from '@codernic/components';
 import { VisionManagerWidget } from './VisionManagerWidget';
-import { getCodernicHttpUrl } from '../../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function SystemTab({ dataTestId }: { dataTestId?: string } = {}) {
   const { rootId, getTestId } = useTestId('system-tab', dataTestId);
   const dispatch = useDispatch();
-
-  const handleOpenFolder = () => {
-    dispatch(sendIntent({ type: 'codernic:open-global-config' }));
-  };
 
   const handleRebuildIndex = () => {
     dispatch(sendIntent({ type: 'codernic:rebuild-index' }));
@@ -20,47 +20,7 @@ export function SystemTab({ dataTestId }: { dataTestId?: string } = {}) {
 
   return (
     <div data-testid={rootId} className="flex flex-col gap-6 p-4">
-      
-
-      <div className="p-4 border border-red-500/50 bg-red-500/10 text-red-300 rounded-md flex flex-col">
-        <Heading data-testid={getTestId('heading-1')} level={3} className="flex items-center gap-2 m-0 text-red-500 mt-0">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          DANGER ZONE
-        </Heading>
-        <Text data-testid={getTestId('text-1')} className="my-2 leading-relaxed text-red-300">
-          The Codernic installation folder contains global configuration files, routing rules, and local model bindings. 
-          <strong> Modifying these files manually can break your Codernic installation.</strong>
-        </Text>
-        <Text data-testid={getTestId('text-2')} className="mt-2 leading-relaxed text-red-300">
-          Only proceed if you know exactly what you are doing or if instructed by support.
-        </Text>
-        <Text data-testid={getTestId('text-3')} className="mt-3 leading-relaxed text-red-300">
-          For further information, please read the <a href="https://codernic.dev" target="_blank" rel="noopener noreferrer" className="text-red-500 underline font-semibold">codernic.dev documentation</a> carefully before making any changes.
-        </Text>
-      </div>
-
       <div className="flex flex-col gap-3">
-        <Heading data-testid={getTestId('heading-2')} level={4} className="m-0 text-white">Global Configuration Directory</Heading>
-        <Text data-testid={getTestId('text-4')} variant="muted" className="m-0">
-          Opens the <code>~/.codernic</code> folder in your operating system's file explorer.
-        </Text>
-        <Button data-testid={getTestId('button')}
-          variant="secondary"
-          onClick={handleOpenFolder}
-          className="self-start flex items-center gap-2"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-          </svg>
-          Open Codernic Folder
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-3 mt-4">
         <Heading data-testid={getTestId('heading-3')} level={4} className="m-0 text-white">Local Codebase Index</Heading>
         <Text data-testid={getTestId('text-5')} variant="muted" className="m-0">
           Triggers a full re-index of your current workspace using the configured embedding model. This enables semantic search (RAG).
@@ -74,23 +34,6 @@ export function SystemTab({ dataTestId }: { dataTestId?: string } = {}) {
             <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 0 1 9-9"></path>
           </svg>
           Rebuild Local Index
-        </Button>
-      </div>
-      <div className="flex flex-col gap-3 mt-4">
-        <Heading data-testid={getTestId('heading-4')} level={4} className="m-0 text-white">Factory Reset & Config Sync</Heading>
-        <Text data-testid={getTestId('text-6')} variant="muted" className="m-0">
-          Restores default configurations, downloads the latest schemas, and fetches required rules/prompts for your current Codernic version. 
-          A backup of your existing <code>~/.codernic</code> config folder will be created automatically.
-        </Text>
-        <Button data-testid={getTestId('button-2')}
-          variant="danger"
-          onClick={() => dispatch(sendIntent({ type: 'codernic:factory-reset' }))}
-          className="self-start flex items-center gap-2"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-          </svg>
-          Reset Configuration
         </Button>
       </div>
 
@@ -158,21 +101,24 @@ function HardwareBenchmarkWidget({ dataTestId }: { dataTestId?: string } = {}) {
   const { rootId, getTestId } = useTestId('hardware-benchmark-widget', dataTestId);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const dispatch = useDispatch();
 
-  const runBenchmark = async () => {
+  const runBenchmark = () => {
     setRunning(true);
     setResult(null);
-    try {
-      const HTTP_URL = getCodernicHttpUrl();
-          
-      const response = await fetch(`${HTTP_URL}/api/benchmark/vram`, { method: 'POST' });
-      const data = await response.json();
-      setResult(data);
-    } catch (e: unknown) {
-      setResult({ success: false, error: (e instanceof Error ? e.message : String(e)) });
-    } finally {
-      setRunning(false);
-    }
+    dispatch({
+      type: 'system/vramBenchmarkRequest',
+      payload: {
+        onSuccess: (data: any) => {
+          setResult(data);
+          setRunning(false);
+        },
+        onError: (err: string) => {
+          setResult({ success: false, error: err });
+          setRunning(false);
+        }
+      }
+    });
   };
 
   return (

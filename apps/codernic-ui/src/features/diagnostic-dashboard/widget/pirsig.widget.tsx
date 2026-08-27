@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useSelector } from 'react-redux';
 import { selectPirsigMetrics } from '../../../features/dag/store/dag.slice';
-import { IconShield, IconCheck, IconX } from '@ai-agencee/ui';
+import { IconShield, IconCheck, IconX } from '@codernic/components';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 function DataRow({ label, value, valueColor }: { label: string; value: React.ReactNode; valueColor?: string }) {
   return (

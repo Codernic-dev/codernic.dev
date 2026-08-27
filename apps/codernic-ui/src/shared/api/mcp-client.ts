@@ -1,46 +1,25 @@
-import { getErathosMcpUrl } from '../../shared/config';
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
 
-export async function callMcpTool(method: string, params: any): Promise<any> {
-  return new Promise((resolve, reject) => {
-    // Determine the WS url: replace http with ws if needed, ensure /ws
-    let url = getErathosMcpUrl();
-    if (!url.endsWith('/ws')) url += '/ws';
-    url = url.replace('http://', 'ws://').replace('https://', 'wss://');
-    
-    const ws = new WebSocket(url);
-    const id = Date.now().toString();
+// ─────────────────────────────────────────────────────────────────────────────
+// callMcpTool — public entry point
+//
+// Routes every MCP tool call through the McpTransportRegistry.
+// Callers don't need to know which transport is used.
+//
+// Priority (handled by the registry):
+//   1. StructuraInMemoryTransport  → for all structura_* tools (zero HTTP)
+//   2. HttpMcpTransport            → fallback for backend tools
+// ─────────────────────────────────────────────────────────────────────────────
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        jsonrpc: "2.0",
-        method: "tools/call",
-        params: {
-          name: method,
-          arguments: params
-        },
-        id: id
-      }));
-    };
+import { mcpRegistry } from './mcp/mcp-transport-registry';
+import type { McpToolResult } from './mcp/mcp-transport.interface';
 
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.id === id) {
-          ws.close();
-          if (data.error) {
-            reject(new Error(data.error.message || 'MCP Tool Error'));
-          } else {
-            resolve(data.result);
-          }
-        }
-      } catch(e) {
-        // ignore parsing errors
-      }
-    };
-
-    ws.onerror = (err) => {
-      ws.close();
-      reject(err);
-    };
-  });
+export async function callMcpTool(
+  method: string,
+  params: Record<string, unknown>
+): Promise<McpToolResult> {
+  return mcpRegistry.callTool(method, params);
 }

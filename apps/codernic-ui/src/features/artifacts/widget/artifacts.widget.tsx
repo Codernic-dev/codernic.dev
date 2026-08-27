@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
 import { ArtifactsPanel } from '../../../widgets/right-panel/ui/ArtifactsPanel';
 import { useSelector } from 'react-redux';
 import { selectCurrentSessionId } from '../../../features/sessions/store/sessions.slice';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function ArtifactsWidget({ dataTestId, id }: { id?: string; dataTestId?: string; }) {
   

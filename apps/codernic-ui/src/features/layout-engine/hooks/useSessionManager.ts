@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../../store';
@@ -13,6 +18,10 @@ export function useSessionManager() {
 
   const handleNewSession = useCallback(() => {
     const newSessionId = crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`;
+    dispatch({ 
+      type: 'sessions/addSession', 
+      payload: { id: newSessionId, name: 'New Session', status: 'idle', last_updated: Date.now() } 
+    });
     dispatch({ type: 'sessions/setCurrentSessionId', payload: newSessionId });
     dispatch({
       type: 'sessions/updateSessionStatus',

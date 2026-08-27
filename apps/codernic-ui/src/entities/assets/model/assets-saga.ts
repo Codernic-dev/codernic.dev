@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { SagaIterator } from 'redux-saga';
 import { call, put, takeEvery, all, take, race, delay, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';

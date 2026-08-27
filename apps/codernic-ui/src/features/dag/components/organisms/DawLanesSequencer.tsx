@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useMemo, useState } from 'react';
-import { IconChevronRight, IconChevronDown } from '@ai-agencee/ui';
+import { IconChevronRight, IconChevronDown } from '@codernic/components';
 import { ErathosCanvas } from '../../../../widgets/dag-pipeline/ui/ErathosCanvas';
 
 export interface DawNodeState {
@@ -7,20 +12,24 @@ export interface DawNodeState {
   role: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
   dependencies: string[];
+  startTime?: number;
+  endTime?: number;
 }
 
 export interface DawLanesSequencerProps {
-  nodes: Record<string, DawNodeState>;
+  nodes: DawNodeState[];
+  currentTime: number;
+  minTime: number;
   onNodeClick?: (nodeId: string) => void;
   'data-testid'?: string;
 }
 
-export function DawLanesSequencer({ nodes, onNodeClick, 'data-testid': dataTestId }: DawLanesSequencerProps) {
+export function DawLanesSequencer({ nodes, currentTime, minTime, onNodeClick, 'data-testid': dataTestId }: DawLanesSequencerProps) {
   const [expandedLane, setExpandedLane] = useState<string | null>(null);
 
   const lanes = useMemo(() => {
     const groups: Record<string, DawNodeState[]> = {};
-    Object.values(nodes).forEach(n => {
+    nodes.forEach(n => {
       const role = n.role || 'System';
       if (!groups[role]) groups[role] = [];
       groups[role].push(n);
@@ -74,24 +83,32 @@ export function DawLanesSequencer({ nodes, onNodeClick, 'data-testid': dataTestI
                   {/* Subtle grid line */}
                   <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-zinc-800/50 -translate-y-1/2 pointer-events-none" />
                   
-                  {roleNodes.map((node, index) => (
-                    <div 
-                      key={node.id}
-                      className="relative z-10 flex items-center gap-2 group/node"
-                      onClick={(e) => { e.stopPropagation(); onNodeClick?.(node.id); }}
-                    >
-                      {/* Connection line to next node if any */}
-                      {index < roleNodes.length - 1 && (
-                        <div className="absolute left-full top-1/2 w-4 h-[1px] bg-zinc-700 -translate-y-1/2" />
-                      )}
-                      
-                      {/* Node Dot */}
+                  {roleNodes.map((node, index) => {
+                    let left = 0;
+                    let width = 0;
+                    const durationScale = 0.05; // 50px per 1000ms
+
+                    if (node.startTime && node.startTime >= minTime) {
+                      left = (node.startTime - minTime) * durationScale;
+                      const endT = node.endTime || currentTime;
+                      width = Math.max((endT - node.startTime) * durationScale, 10);
+                    }
+
+                    return (
                       <div 
-                        className={`w-3 h-3 rounded-full ${getStatusColor(node.status)} cursor-pointer hover:scale-125 transition-transform`}
-                        title={`${node.id} (${node.status})`}
-                      />
-                    </div>
-                  ))}
+                        key={node.id}
+                        className="absolute top-1/2 -translate-y-1/2 flex items-center group/node"
+                        style={{ left: `${left}px`, width: `${width}px` }}
+                        onClick={(e) => { e.stopPropagation(); onNodeClick?.(node.id); }}
+                      >
+                        {/* Timeline Block */}
+                        <div 
+                          className={`w-full h-4 rounded-sm ${getStatusColor(node.status)} opacity-80 border border-black/20 cursor-pointer hover:opacity-100 transition-opacity`}
+                          title={`${node.id} (${node.status})`}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 

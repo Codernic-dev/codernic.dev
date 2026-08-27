@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoraTrainerWidget } from '../../lora-trainer/components/organisms/lora-trainer-widget';
@@ -6,7 +11,7 @@ import { JsonAccordionEditor } from '../../../features/json-editor/components/js
 import { vscode } from '../../../shared';
 import { Button } from '../../../shared/ui/button';
 import { getOllamaUrl } from '../../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function ModelsTab() {
   const { rootId, getTestId } = useTestId('models-tab', typeof dataTestId !== 'undefined' ? dataTestId : undefined);

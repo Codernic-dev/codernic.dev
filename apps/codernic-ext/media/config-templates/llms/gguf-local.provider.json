@@ -1,5 +1,0 @@
-{
-  "type": "local-managed-llama",
-  "llamaCppPath": "llama-server",
-  "models": []
-}

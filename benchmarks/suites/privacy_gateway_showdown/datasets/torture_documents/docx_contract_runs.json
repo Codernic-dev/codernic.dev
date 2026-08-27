@@ -1,0 +1,31 @@
+{
+  "document_type": "DOCX_RUNS",
+  "document_id": "TORTURE-DOCX-001",
+  "title": "Contrat de Prestation et Accord de Confidentialité",
+  "paragraphs": [
+    {
+      "p_id": "P1",
+      "runs": [
+        {"text": "Le présent accord est conclu entre ", "bold": false, "italic": false},
+        {"text": "Helvetica Cyber Shield SA", "bold": true, "italic": false, "pii": "ORGANIZATION"},
+        {"text": " (IDE: ", "bold": false, "italic": false},
+        {"text": "CHE-332.654.987", "bold": true, "italic": true, "pii": "CH_IDE"},
+        {"text": "), représentée par ", "bold": false, "italic": false},
+        {"text": "Pierre-Alain Meyer", "bold": true, "italic": false, "pii": "PERSON"},
+        {"text": ", et ", "bold": false, "italic": false},
+        {"text": "Romandie Data Protect Sàrl", "bold": true, "italic": false, "pii": "ORGANIZATION"},
+        {"text": ".", "bold": false, "italic": false}
+      ]
+    },
+    {
+      "p_id": "P2",
+      "runs": [
+        {"text": "Tout litige sera soumis au for juridique de ", "bold": false, "italic": false},
+        {"text": "Genève", "bold": true, "italic": false, "pii": "LOCATION"},
+        {"text": ", sous réserve de recours au Tribunal Fédéral.", "bold": false, "italic": false}
+      ]
+    }
+  ],
+  "expected_inline_runs": 12,
+  "formatting_preservation_required": true
+}

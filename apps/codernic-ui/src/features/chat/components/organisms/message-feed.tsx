@@ -1,13 +1,18 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { memo } from 'react';
 import type { CodernicMode } from '../../../../../../codernic-ext/src/features/codernic/model/codernic-mode.types';
 import type { AgentRunState, PhaseGateState } from '../../../../entities/kernel/model/types';
 import type { ChatMsg, ThinkingState } from '../../../../entities/kernel/model/types';
-import { Button, Watermark } from '@ai-agencee/ui';
+import { Button, Watermark } from '@codernic/components';
 import { MessageCard } from './message-card';
 import { ThinkingIndicator } from '../molecules/thinking-indicator';
 
 import { DagPipeline } from '../../../../widgets/dag-pipeline/ui/dag-pipeline';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 interface MessageFeedProps {
   mode: CodernicMode;

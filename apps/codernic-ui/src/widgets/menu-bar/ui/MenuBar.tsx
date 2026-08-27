@@ -1,13 +1,20 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendIntent } from '../../../shared/store/intent';
 import { AboutModal } from './AboutModal';
-import { IconCodernic } from '@ai-agencee/ui';
+import { IconCodernic } from '@codernic/components';
 import { NotificationBell } from './NotificationBell';
 
 import { useSelector } from 'react-redux';
 import { selectWorkspaceName, selectSandboxMode } from '../../../entities/app/model/app-slice';
-import { useTestId } from '@ai-agencee/ui';
+import { selectLicenseModules } from '../../../features/system/store/system.slice';
+import { ModuleLogo } from '../../../features/system/components/ModuleLogo';
+import { useTestId } from '@codernic/components';
 
 export interface IMenuBarProps {
   title?: string;
@@ -21,12 +28,17 @@ export interface IMenuBarProps {
   dataTestId?: string;
 }
 
-export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft, onRecentSessions, onToggleRight, onNewSession, layouts = [], onSelectLayout, children }: IMenuBarProps) {
-  
+import { selectActiveProfile, PROFILE_PAGES_MAP, selectShowHelpIcons, toggleShowHelpIcons } from '../../../entities/app/model/app-slice';
+import { ProfileSelector } from './ProfileSelector';
+
+export function MenuBar({ dataTestId, title = "CODERNIC STUDIO", onToggleLeft, onRecentSessions, onToggleRight, onNewSession, layouts = [], onSelectLayout, children }: IMenuBarProps) {
   const { rootId, getTestId } = useTestId('menu-bar', dataTestId);
   const dispatch = useDispatch();
   const workspaceName = useSelector(selectWorkspaceName);
   const sandboxMode = useSelector(selectSandboxMode);
+  const activeProfileKey = useSelector(selectActiveProfile);
+  const showHelpIcons = useSelector(selectShowHelpIcons);
+  const licenseModules = useSelector(selectLicenseModules) || [];
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -50,11 +62,12 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
     action();
   };
 
-  type MenuItem = { label?: string; action?: () => void; disabled?: boolean; isSeparator?: boolean };
+  type MenuItem = { label?: string; action?: () => void; disabled?: boolean; isSeparator?: boolean; icon?: React.ReactNode };
 
-  const layoutMenuItems = layouts.map(layout => ({
-    label: layout,
-    action: () => onSelectLayout && onSelectLayout(layout)
+  const currentProfilePages = (PROFILE_PAGES_MAP[activeProfileKey] || PROFILE_PAGES_MAP.developer).pages;
+  const profileLayoutMenuItems = currentProfilePages.map(page => ({
+    label: page.label,
+    action: () => onSelectLayout && onSelectLayout(page.layoutName)
   }));
 
   const Menus: Record<string, MenuItem[]> = {
@@ -83,9 +96,8 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
       ]
     } : {}),
     View: [
-      ...layoutMenuItems,
+      ...profileLayoutMenuItems,
       { isSeparator: true },
-      // Reset layout overrides for the current layout (if any)
       { label: 'Reset Layout', action: () => {
           const layout = new URLSearchParams(window.location.search).get('layout');
           if (layout && localStorage.getItem(`codernic_layout_${layout}`)) {
@@ -108,10 +120,15 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
       ]
     }),
     Help: [
-      { label: 'Documentation', action: () => window.open('https://github.com/binaryjack/codernic.dev', '_blank') },
+      { label: showHelpIcons ? 'Masquer l\'aide ? sur les widgets' : 'Afficher l\'aide ? sur les widgets', action: () => dispatch(toggleShowHelpIcons()) },
+      { isSeparator: true },
+      { label: 'Documentation Wiki', action: () => window.open('https://docs.codernic.dev', '_blank') },
       { label: 'About',         action: () => setIsAboutOpen(true) },
     ],
   };
+
+
+
 
   return (
     <>
@@ -221,6 +238,8 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
                           cursor: item.disabled ? 'not-allowed' : 'pointer',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: '11px',
+                          display: 'flex',
+                          alignItems: 'center',
                           color: item.disabled ? 'var(--text-muted)' : 'var(--text-body)',
                           opacity: item.disabled ? 0.5 : 1,
                           transition: 'all 0.12s ease',
@@ -238,6 +257,7 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
                           }
                         }}
                       >
+                        {item.icon && item.icon}
                         {item.label}
                       </div>
                     )
@@ -265,8 +285,9 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
           {workspaceName || title}
         </span>
         
-        {/* Children on the right (e.g. Settings button) */}
+        {/* Children on the right (e.g. Settings button & ProfileSelector) */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ProfileSelector onSelectLayout={onSelectLayout} />
           <NotificationBell data-testid={getTestId('notification-bell')} />
           {children && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -274,6 +295,7 @@ export function MenuBar({ dataTestId, title = "CODERNIC WORKSPACE", onToggleLeft
             </div>
           )}
         </div>
+
       </div>
 
       <AboutModal data-testid={getTestId('about-modal')} isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />

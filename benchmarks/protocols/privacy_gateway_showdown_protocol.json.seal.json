@@ -1,0 +1,8 @@
+{
+  "protocol_file": "privacy_gateway_showdown_protocol.json",
+  "sha256_digest": "973c0ec05784f23de44cb3c3027f04fb4bfd16d29c471a49590f0aa8c55ce34c",
+  "sealed_at": "2026-08-25T15:30:00Z",
+  "standard": "ISO/IEC 17025:2017",
+  "sealed_by": "tadeop",
+  "status": "SEALED_IMMUTABLE"
+}

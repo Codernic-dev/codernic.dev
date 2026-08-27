@@ -1,0 +1,18 @@
+{
+  "manifest_version": "1.0",
+  "generated_at": "2026-08-26T09:00:00Z",
+  "files": [
+    {
+      "path": "datasets/inference_workloads.jsonl",
+      "sha256": "70d785285890a7cc8e4c4262bb34f389951c3967348e534c19210f41c09fb689",
+      "type": "inference_evaluation",
+      "records": 5
+    },
+    {
+      "path": "datasets/training_pairs.jsonl",
+      "sha256": "745744f204c61f4f6306f8821be02d8bac1451dbc89dcb97545238ba5a0714a4",
+      "type": "training_evaluation",
+      "records": 5
+    }
+  ]
+}

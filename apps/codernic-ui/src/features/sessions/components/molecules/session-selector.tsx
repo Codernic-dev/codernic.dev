@@ -1,11 +1,16 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { SessionMeta } from '../../../../entities/kernel/model/types';
-import { ConfirmModal } from '@ai-agencee/ui';
-import { Button } from '@ai-agencee/ui';
-import { IconLoader, IconCheck, IconX, IconEdit, IconTrash, IconPlus } from '@ai-agencee/ui';
+import { ConfirmModal } from '@codernic/components';
+import { Button } from '@codernic/components';
+import { IconLoader, IconCheck, IconX, IconEdit, IconTrash, IconPlus } from '@codernic/components';
 import { confirmUnsavedChanges } from '../../../dag/store/confirmUnsavedChanges';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 interface SessionSelectorProps {
   sessions: SessionMeta[];
@@ -30,7 +35,7 @@ export function SessionSelector({
 }: SessionSelectorProps) {
   
   const { rootId, getTestId } = useTestId('session-selector', dataTestId);
-  const sortedSessions = [...sessions].sort((a, b) => b.last_updated - a.last_updated);
+  const sortedSessions = [...sessions].sort((a, b) => (b.last_updated || 0) - (a.last_updated || 0));
   const [deleteTarget, setDeleteTarget] = useState<SessionMeta | null>(null);
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
@@ -144,7 +149,7 @@ export function SessionSelector({
                     </div>
                     <div className="text-[9px] text-zinc-500 pl-5">
                       {/* Formatted date yyyy-MM-dd - HH:mm:ss */}
-                      [{new Date(session.last_updated).toISOString().replace('T', ' - ').substring(0, 21)}]
+                      [{new Date(session.last_updated || Date.now()).toISOString().replace('T', ' - ').substring(0, 21)}]
                     </div>
                   </div>
                 ) : (
@@ -155,7 +160,7 @@ export function SessionSelector({
                         {session.name || session.id}
                       </span>
                       <span className="text-xs text-zinc-500 mt-1 truncate block w-full">
-                        Last updated: {new Date(session.last_updated).toLocaleString()}
+                        Last updated: {new Date(session.last_updated || Date.now()).toLocaleString()}
                         {session.status === 'running' && (
                           <span className="ml-2 inline-flex items-center text-emerald-500" title="Inferring">
                             <IconLoader data-testid={`${rootId}-icon-loader-1`} className="animate-spin" style={{ width: '12px', height: '12px', marginRight: '4px' }} /> Running

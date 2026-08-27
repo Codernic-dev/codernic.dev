@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deming-showdown-eval-job
+  namespace: deming-showdown
+  labels:
+    bench.codernic.dev/job: showdown-eval
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: evaluator
+        image: python:3.11-slim
+        command: ["python3", "/runners/evaluate_showdown_metrics.py"]
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        volumeMounts:
+        - name: suite-volume
+          mountPath: /runners
+          readOnly: true
+      volumes:
+      - name: suite-volume
+        hostPath:
+          path: /home/tadeop/dev/Codernic-Workspace/codernic-bench-standalone/benchmarks/suites/deming_llm_showdown/runners
+          type: Directory

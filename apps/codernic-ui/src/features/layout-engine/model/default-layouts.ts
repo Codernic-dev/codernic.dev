@@ -1,4 +1,9 @@
-import type { BlockState } from '@ai-agencee/ui/layout-engine';
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
+import type { BlockState } from '@codernic/components/layout-engine';
 
 export const DEFAULT_LAYOUTS: Record<string, Record<string, BlockState>> = {
   Coder: {
@@ -110,5 +115,91 @@ export const DEFAULT_LAYOUTS: Record<string, Record<string, BlockState>> = {
     'bench-w': { id: 'bench-w', type: 'widget', widgetType: 'benchmark-widget', parentId: 'bench-col', locked: true },
     'model-col': { id: 'model-col', type: 'vblock', orientation: 'vertical', childrenIds: ['model-w'], ratios: [1], parentId: 'diag-bottom', locked: true, allowFullScreen: true },
     'model-w': { id: 'model-w', type: 'widget', widgetType: 'model-selection-card', parentId: 'model-col', locked: true }
+  },
+  codernic_manager: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['hub-w'], ratios: [1], parentId: 'root', locked: true },
+    'hub-w': { id: 'hub-w', type: 'widget', widgetType: 'models-settings', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['agent-events-w'], ratios: [1], parentId: 'root', locked: true },
+    'agent-events-w': { id: 'agent-events-w', type: 'widget', widgetType: 'agent-events-widget', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['pirsig-w'], ratios: [1], parentId: 'root', locked: true },
+    'pirsig-w': { id: 'pirsig-w', type: 'widget', widgetType: 'pirsig-widget', parentId: 'right-col', locked: true }
+  },
+  pirsig_shield: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['pirsig-w'], ratios: [1], parentId: 'root', locked: true },
+    'pirsig-w': { id: 'pirsig-w', type: 'widget', widgetType: 'pirsig-widget', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['agent-events-w'], ratios: [1], parentId: 'root', locked: true },
+    'agent-events-w': { id: 'agent-events-w', type: 'widget', widgetType: 'agent-events-widget', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['intro-w'], ratios: [1], parentId: 'root', locked: true },
+    'intro-w': { id: 'intro-w', type: 'widget', widgetType: 'introspection', parentId: 'right-col', locked: true }
+  },
+  ragtime_node: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['sessions-w'], ratios: [1], parentId: 'root', locked: true },
+    'sessions-w': { id: 'sessions-w', type: 'widget', widgetType: 'sessions', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['erathos-w'], ratios: [1], parentId: 'root', locked: true },
+    'erathos-w': { id: 'erathos-w', type: 'widget', widgetType: 'erathos', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['agent-events-w'], ratios: [1], parentId: 'root', locked: true },
+    'agent-events-w': { id: 'agent-events-w', type: 'widget', widgetType: 'agent-events-widget', parentId: 'right-col', locked: true }
+  },
+  galileus_ci: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['sessions-w'], ratios: [1], parentId: 'root', locked: true },
+    'sessions-w': { id: 'sessions-w', type: 'widget', widgetType: 'sessions', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['galileus-w'], ratios: [1], parentId: 'root', locked: true },
+    'galileus-w': { id: 'galileus-w', type: 'widget', widgetType: 'galileus-router', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['intro-w', 'artifacts-w'], ratios: [0.5, 0.5], parentId: 'root', locked: true },
+    'intro-w': { id: 'intro-w', type: 'widget', widgetType: 'introspection', parentId: 'right-col', locked: true },
+    'artifacts-w': { id: 'artifacts-w', type: 'widget', widgetType: 'artifacts', parentId: 'right-col', locked: true }
+  },
+  deming_node: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['hub-w'], ratios: [1], parentId: 'root', locked: true },
+    'hub-w': { id: 'hub-w', type: 'widget', widgetType: 'models-settings', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['agent-events-w'], ratios: [1], parentId: 'root', locked: true },
+    'agent-events-w': { id: 'agent-events-w', type: 'widget', widgetType: 'agent-events-widget', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['intro-w'], ratios: [1], parentId: 'root', locked: true },
+    'intro-w': { id: 'intro-w', type: 'widget', widgetType: 'introspection', parentId: 'right-col', locked: true }
+  },
+  ockham_proxy: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['hub-w'], ratios: [1], parentId: 'root', locked: true },
+    'hub-w': { id: 'hub-w', type: 'widget', widgetType: 'models-settings', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['chat-w'], ratios: [1], parentId: 'root', locked: true },
+    'chat-w': { id: 'chat-w', type: 'widget', widgetType: 'chat', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['intro-w'], ratios: [1], parentId: 'root', locked: true },
+    'intro-w': { id: 'intro-w', type: 'widget', widgetType: 'introspection', parentId: 'right-col', locked: true }
+  },
+  cosa_watcher: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['left-col', 'center-col', 'right-col'], ratios: [0.2, 0.6, 0.2], locked: true },
+    'left-col': { id: 'left-col', type: 'vblock', orientation: 'vertical', childrenIds: ['sessions-w'], ratios: [1], parentId: 'root', locked: true },
+    'sessions-w': { id: 'sessions-w', type: 'widget', widgetType: 'sessions', parentId: 'left-col', locked: true },
+    'center-col': { id: 'center-col', type: 'vblock', orientation: 'vertical', childrenIds: ['agent-events-w'], ratios: [1], parentId: 'root', locked: true },
+    'agent-events-w': { id: 'agent-events-w', type: 'widget', widgetType: 'agent-events-widget', parentId: 'center-col', locked: true },
+    'right-col': { id: 'right-col', type: 'vblock', orientation: 'vertical', childrenIds: ['erathos-w'], ratios: [1], parentId: 'root', locked: true },
+    'erathos-w': { id: 'erathos-w', type: 'widget', widgetType: 'erathos', parentId: 'right-col', locked: true }
+  },
+  swg_layout: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['swg-left', 'swg-center', 'swg-right'], ratios: [0.25, 0.5, 0.25], locked: true },
+    'swg-left': { id: 'swg-left', type: 'vblock', orientation: 'vertical', childrenIds: ['swg-engine-controls-w', 'swg-lockdown-w', 'swg-interception-w'], ratios: [0.35, 0.3, 0.35], parentId: 'root', locked: true },
+    'swg-engine-controls-w': { id: 'swg-engine-controls-w', type: 'widget', widgetType: 'swg-engine-controls', parentId: 'swg-left', locked: true },
+    'swg-lockdown-w': { id: 'swg-lockdown-w', type: 'widget', widgetType: 'swg-lockdown', parentId: 'swg-left', locked: true },
+    'swg-interception-w': { id: 'swg-interception-w', type: 'widget', widgetType: 'swg-interception', parentId: 'swg-left', locked: true },
+
+    'swg-center': { id: 'swg-center', type: 'vblock', orientation: 'vertical', childrenIds: ['swg-telemetry-w', 'swg-llm-stream-w'], ratios: [0.55, 0.45], parentId: 'root', locked: true },
+    'swg-telemetry-w': { id: 'swg-telemetry-w', type: 'widget', widgetType: 'swg-telemetry-log', parentId: 'swg-center', locked: true },
+    'swg-llm-stream-w': { id: 'swg-llm-stream-w', type: 'widget', widgetType: 'swg-llm-stream', parentId: 'swg-center', locked: true },
+
+    'swg-right': { id: 'swg-right', type: 'vblock', orientation: 'vertical', childrenIds: ['swg-metrics-w', 'swg-accreditations-w'], ratios: [0.35, 0.65], parentId: 'root', locked: true },
+    'swg-metrics-w': { id: 'swg-metrics-w', type: 'widget', widgetType: 'swg-metrics', parentId: 'swg-right', locked: true },
+    'swg-accreditations-w': { id: 'swg-accreditations-w', type: 'widget', widgetType: 'swg-accreditations', parentId: 'swg-right', locked: true }
+  },
+  swg_accreditation: {
+    'root': { id: 'root', type: 'vblock', orientation: 'horizontal', childrenIds: ['acc-left', 'acc-right'], ratios: [0.5, 0.5], locked: true },
+    'acc-left': { id: 'acc-left', type: 'vblock', orientation: 'vertical', childrenIds: ['swg-accreditations-w'], ratios: [1], parentId: 'root', locked: true },
+    'swg-accreditations-w': { id: 'swg-accreditations-w', type: 'widget', widgetType: 'swg-accreditations', parentId: 'acc-left', locked: true },
+    'acc-right': { id: 'acc-right', type: 'vblock', orientation: 'vertical', childrenIds: ['swg-interception-w'], ratios: [1], parentId: 'root', locked: true },
+    'swg-interception-w': { id: 'swg-interception-w', type: 'widget', widgetType: 'swg-interception', parentId: 'acc-right', locked: true }
   }
 };

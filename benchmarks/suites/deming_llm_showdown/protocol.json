@@ -1,0 +1,39 @@
+{
+  "protocol_id": "DEMING_LLM_TRAINING_SHOWDOWN_V2",
+  "version": "2.0.0",
+  "author": "Antigravity (Tadeop Sovereign R&D)",
+  "standard_compliance": ["ISO/IEC 17025:2017", "ISO/IEC/IEEE 29119-3", "ALCOA+"],
+  "evaluation_scope": {
+    "inference": {
+      "scenarios": [
+        {"id": "short_512", "context_tokens": 512, "description": "Baseline pure latency and decoding throughput"},
+        {"id": "medium_8k", "context_tokens": 8192, "description": "Standard code assistance and file comprehension"},
+        {"id": "long_32k", "context_tokens": 32768, "description": "Deep architecture analysis and context limits"},
+        {"id": "hyper_scale_128k", "context_tokens": 128000, "ast_symbols": 50000, "description": "Deming Fusion Tensor working memory vs prompt stuffing"}
+      ],
+      "models": [
+        "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+        "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+        "Qwen2.5-Coder-32B-Instruct-Q4_K_M.gguf"
+      ]
+    },
+    "training": {
+      "scenarios": [
+        {"id": "lora_rank_16", "rank": 16, "alpha": 32.0, "description": "Standard LoRA adapter instruction tuning"},
+        {"id": "pissa_vulkan", "rank": 16, "strategy": "vulkan", "description": "PiSSA accelerated Vulkan Backprop"},
+        {"id": "streaming_qlora", "rank": 8, "strategy": "streaming", "description": "Zero-RAM-Spike Streaming QLoRA Backprop"}
+      ],
+      "batch_size": 1,
+      "num_steps": 20
+    }
+  },
+  "execution_rules": {
+    "warmup_iterations": 3,
+    "measured_iterations": 10,
+    "zero_simulation_enforced": true,
+    "k3s_cgroups_quota": {
+      "cpu": "2000m",
+      "memory": "4Gi"
+    }
+  }
+}

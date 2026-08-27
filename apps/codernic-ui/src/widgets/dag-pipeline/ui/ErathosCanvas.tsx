@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../../store';
 import { useEffect, useRef, useState, memo } from 'react';
 import { createPortal } from 'react-dom';
@@ -6,7 +11,7 @@ import { selectCurrentSessionId } from '../../../features/sessions/store/session
 import { setErathosSchema, selectGalileusSnapshot, selectErathosSchema, selectIsErathosDirty, sendSchemaToCodernic, saveSchemaLocal } from '../../../features/dag/store/dag.slice';
 import { setErathosSnapshot } from '../../../features/sessions/store/sessions.slice';
 import { confirmUnsavedChanges } from '../../../features/dag/store/confirmUnsavedChanges';
-import { IconCheck } from '@ai-agencee/ui';
+import { IconCheck } from '@codernic/components';
 import { appendSystemLogsBatch } from '../../../features/system/store/system.slice';
 // @ts-expect-error
 import { initializeStructuraWebview } from '@atomos-web/structura/webview';
@@ -14,7 +19,7 @@ import { initializeStructuraWebview } from '@atomos-web/structura/webview';
 import '@atomos-web/prime-style/dist/styles.css';
 import '../../../features/dag/styles/erathos-theme.css';
 import { getErathosMcpUrl } from '../../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface IErathosCanvasProps {
   id?: string;
@@ -24,7 +29,7 @@ export interface IErathosCanvasProps {
   hideHeader?: boolean;
   appearance?: string;
   dataTestId?: string;
-  allowMouseZoom?: boolean;
+  enableScrollZoom?: boolean;
   allowMultipleSchemas?: boolean;
   disableLocalStorage?: boolean;
   fitToScreen?: boolean;
@@ -37,7 +42,7 @@ export const ErathosCanvas = memo(function ErathosCanvas({ dataTestId,
   initialState,
   hideHeader = false,
   appearance,
-  allowMouseZoom = true,
+  enableScrollZoom = true,
   allowMultipleSchemas = true,
   disableLocalStorage = false,
   fitToScreen = true
@@ -107,26 +112,45 @@ const [isClosed, setIsClosed] = useState(false);
           canvasBackgroundColor = 'var(--background, transparent)';
         }
 
+        // Provide a minimal workspace bootstrap so Structura initialises its
+        // internal Redux store (workspace, canvases, settings) even when no
+        // external schema has been injected yet. Without this, handleMcpCall
+        // and inject_schema both fail with "Cannot read properties of undefined
+        // (reading 'canvases')". The in-memory MCP transport then takes over
+        // topology management via structura_inject_schema.
+        const BOOTSTRAP_WORKSPACE = {
+          workspace: {
+            id: 'codernic-dag-workspace',
+            name: 'Codernic DAG',
+            canvases: [],
+          },
+          settings: {
+            general: { canvasBackgroundColor },
+          },
+        };
+
+        const schemaWithLayout = initialState || globalSchema || BOOTSTRAP_WORKSPACE;
+
         const app = await initializeStructuraWebview({
           instanceId: `codernic-erathos-${canvasId}`,
           mcpServerUrl,
           containerId: canvasId,
-          initialState: initialState || globalSchema,
+          initialState: schemaWithLayout,
           appSettings: {
             general: {
               canvasBackgroundColor
             }
           },
           workspaceConfig: {
-            headless: hideHeader,
+            headless: true,
             allow_multiple_schemas: allowMultipleSchemas,
             readonly: readOnly,
             disableLocalStorage: disableLocalStorage,
-            allowMouseZoom: allowMouseZoom,
+            enableScrollZoom: enableScrollZoom,
             menu: { 
-              toolbar: { available: readOnly },
-              minimap: { available: false },
-              zoom: { available: false },
+              toolbar: { available: !hideHeader && !readOnly },
+              minimap: { available: !hideHeader },
+              zoom: { available: !hideHeader },
               settings: { available: false },
               save_workspace: { available: false },
               load_workspace: { available: false },
@@ -154,7 +178,16 @@ const [isClosed, setIsClosed] = useState(false);
         if (typeof window !== 'undefined' && app.testApi) {
           (window as any).__STRUCTURA_API__ = app.testApi;
           console.log('[DEBUG] Attached __STRUCTURA_API__ to window');
-          
+
+          // In-memory MCP transport (v2.3.17+)
+          // Routes structura_* tool calls directly to the embedded canvas —
+          // zero HTTP, zero Node.js server. The saga calls callMcpTool() as
+          // usual; StructuraInMemoryTransport picks this up automatically.
+          if (typeof app.handleMcpCall === 'function') {
+            (window as any).__STRUCTURA_MCP_DISPATCH__ = app.handleMcpCall.bind(app);
+            console.log('[DEBUG] Attached __STRUCTURA_MCP_DISPATCH__ to window (in-memory transport active)');
+          }
+
           // Auto fit to screen when loaded natively so that schemas don't center on main window instead of widget bounds.
           if (fitToScreen) {
             setTimeout(() => {
@@ -292,120 +325,7 @@ const [isClosed, setIsClosed] = useState(false);
   }, [galileusSnapshot]);
 
   // SVG styling and badge projection hook for execution and class-diagram layout
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const interval = setInterval(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const svg = container.querySelector('svg');
-      if (!svg) return;
-
-      const groups = container.querySelectorAll('g');
-      const schema = globalSchema || initialState;
-      
-      // Extract entities from the schema structure
-      let entities: any[] = [];
-      if (schema) {
-        if (Array.isArray(schema.entities)) {
-          entities = schema.entities;
-        } else if (schema.workspace?.canvases) {
-          const canvas = Object.values(schema.workspace.canvases)[0] as any;
-          if (canvas?.schemas) {
-            const activeSchema = canvas.schemas[canvas.active_schema_id] || Object.values(canvas.schemas)[0];
-            entities = activeSchema?.entities || [];
-          }
-        }
-      }
-
-      groups.forEach((g) => {
-        const textElements = g.querySelectorAll('text');
-        let matchingEntity: any = null;
-        textElements.forEach(t => {
-          const val = t.textContent?.trim()?.toLowerCase();
-          if (!val) return;
-          const match = entities.find((e: any) => e.name?.toLowerCase() === val || e.id?.toLowerCase() === val);
-          if (match) {
-            matchingEntity = match;
-          }
-        });
-
-        if (!matchingEntity) return;
-
-        const rect = g.querySelector('rect');
-        if (!rect) return;
-
-        // Get status from properties or direct status field
-        const statusProp = matchingEntity.properties?.find((p: any) => p.key === 'status');
-        const status = statusProp ? statusProp.value : matchingEntity.status;
-
-        if (appearance === 'execution') {
-          if (status === 'Done' || status === 'completed' || status === 'success') {
-            rect.setAttribute('stroke', '#10b981');
-            rect.setAttribute('stroke-width', '2');
-            rect.style.filter = 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.7))';
-
-            g.querySelectorAll('.erathos-exec-badge-pulse, .erathos-exec-badge-failed').forEach(el => el.remove());
-
-            if (!g.querySelector('.erathos-exec-badge-success')) {
-              const bbox = (rect as any).getBBox();
-              const checkmark = document.createElementNS("http://www.w3.org/2000/svg", "text");
-              checkmark.setAttribute('x', (bbox.x + bbox.width - 25).toString());
-              checkmark.setAttribute('y', (bbox.y + 25).toString());
-              checkmark.setAttribute('class', 'erathos-exec-badge erathos-exec-badge-success');
-              checkmark.setAttribute('font-size', '14');
-              checkmark.setAttribute('fill', '#10b981');
-              checkmark.textContent = '✅';
-              g.appendChild(checkmark);
-            }
-          } else if (status === 'InProgress' || status === 'running') {
-            rect.setAttribute('stroke', '#3b82f6');
-            rect.setAttribute('stroke-width', '2');
-            rect.style.filter = 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))';
-
-            g.querySelectorAll('.erathos-exec-badge-success, .erathos-exec-badge-failed').forEach(el => el.remove());
-
-            if (!g.querySelector('.erathos-exec-badge-pulse')) {
-              const bbox = (rect as any).getBBox();
-              const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-              dot.setAttribute('cx', (bbox.x + bbox.width - 20).toString());
-              dot.setAttribute('cy', (bbox.y + 20).toString());
-              dot.setAttribute('r', '5');
-              dot.setAttribute('fill', '#3b82f6');
-              dot.setAttribute('class', 'erathos-exec-badge erathos-exec-badge-pulse animate-pulse');
-              g.appendChild(dot);
-            }
-          } else if (status === 'failed') {
-            rect.setAttribute('stroke', '#ef4444');
-            rect.setAttribute('stroke-width', '2');
-            rect.style.filter = 'drop-shadow(0 0 10px rgba(239, 68, 68, 0.8))';
-
-            g.querySelectorAll('.erathos-exec-badge-success, .erathos-exec-badge-pulse').forEach(el => el.remove());
-
-            if (!g.querySelector('.erathos-exec-badge-failed')) {
-              const bbox = (rect as any).getBBox();
-              const warning = document.createElementNS("http://www.w3.org/2000/svg", "text");
-              warning.setAttribute('x', (bbox.x + bbox.width - 25).toString());
-              warning.setAttribute('y', (bbox.y + 25).toString());
-              warning.setAttribute('class', 'erathos-exec-badge erathos-exec-badge-failed');
-              warning.setAttribute('font-size', '14');
-              warning.setAttribute('fill', '#ef4444');
-              warning.textContent = '❌';
-              g.appendChild(warning);
-            }
-          } else {
-            rect.setAttribute('stroke', 'rgba(255, 255, 255, 0.07)');
-            rect.setAttribute('stroke-width', '1');
-            rect.style.filter = 'none';
-            g.querySelectorAll('.erathos-exec-badge').forEach(el => el.remove());
-          }
-        }
-      });
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [appearance, globalSchema, initialState]);
+  // (Removed: Legacy setInterval for manual DOM patching. Telemetry is now handled natively by Lightweight Viewer Engine)
 
   if (isClosed) return null;
 
@@ -441,9 +361,9 @@ const [isClosed, setIsClosed] = useState(false);
         </div>
       )}
       <div className="flex-1 w-full overflow-hidden relative" style={{ transform: 'translateZ(0)' }}>
-        {!readOnly && portalTarget && createPortal(
-          <>
-            {isDirty && (
+        {portalTarget && createPortal(
+          <div className="flex items-center gap-1">
+            {!readOnly && isDirty && (
               <button
                 onClick={() => {
                   const state = appRef.current?.getState();
@@ -459,13 +379,14 @@ const [isClosed, setIsClosed] = useState(false);
                     dispatch(sendSchemaToCodernic({ schema: state }));
                   }
                 }}
-                className="p-1 rounded text-emerald-500 hover:text-emerald-400 hover:bg-zinc-800 transition-colors animate-pulse"
+                className="p-1.5 rounded text-emerald-500 hover:text-emerald-400 hover:bg-zinc-800 transition-colors animate-pulse"
                 title="Save Changes"
               >
                 <IconCheck data-testid={getTestId('icon-check')} size={14} />
               </button>
             )}
-          </>,
+            {/* Headless mode - no zoom icons requested by user */}
+          </div>,
           portalTarget
         )}
         <div

@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../../store';
 import { useSelector } from 'react-redux';
 import { 
   selectContextStats, selectDaemonStatus, selectVramUsage, selectGpuTarget, 
   selectSystemLogs, selectAppVersion, selectRamUsage, selectCpuUsage, 
-  selectMetrics, selectLoraTrainingStatus
+  selectMetrics, selectLoraTrainingStatus, selectInfraStats
 } from '../store/system.slice';
 import { selectGlobalStatus } from '../../../entities/telemetry/model/telemetry-slice';
 import { selectRagProgress } from '../../dag/store/dag.slice';
@@ -25,15 +30,22 @@ const LLM_CONTEXT_MAP: Record<string, number> = {
 export function useSystemMetrics(currentSessionId: string) {
   const contextStats = useSelector(selectContextStats);
   const daemonStatus = useSelector(selectDaemonStatus);
-  const vramUsage = useSelector(selectVramUsage);
-  const gpuTarget = useSelector(selectGpuTarget);
   const systemLogs = useSelector(selectSystemLogs);
   const ragProgress = useSelector(selectRagProgress);
-  const appVersion = useSelector(selectAppVersion);
-  const telemetryStatus = useSelector(selectGlobalStatus);
   const metrics = useSelector(selectMetrics);
-  const ramUsage = useSelector(selectRamUsage);
-  const cpuUsage = useSelector(selectCpuUsage);
+  const telemetryStatus = useSelector(selectGlobalStatus);
+  const infraStats = useSelector(selectInfraStats);
+  const legacyRamUsage = useSelector(selectRamUsage);
+  const legacyCpuUsage = useSelector(selectCpuUsage);
+  const legacyVramUsage = useSelector(selectVramUsage);
+  const legacyGpuTarget = useSelector(selectGpuTarget);
+  const legacyAppVersion = useSelector(selectAppVersion);
+
+  const ramUsage = infraStats ? infraStats.ram_used : legacyRamUsage;
+  const cpuUsage = infraStats ? infraStats.cpu_usage : legacyCpuUsage;
+  const vramUsage = infraStats ? infraStats.vram_used : legacyVramUsage;
+  const gpuTarget = infraStats ? infraStats.hardware_type : legacyGpuTarget;
+  const appVersion = infraStats?.daemon_version || legacyAppVersion;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sessionLlm = useSelector((state: RootState) => selectSessionLlm(state, currentSessionId));
 
@@ -50,9 +62,9 @@ export function useSystemMetrics(currentSessionId: string) {
   const currentTokens = metrics?.context_tokens_count ?? contextStats?.current_tokens ?? 0;
   const tokenPct = Math.min(100, Math.round((currentTokens / dynamicMaxTokens) * 100));
 
-  const vramStr = vramUsage !== null ? `${vramUsage.toFixed(1)} GB` : '--';
-  const ramStr = ramUsage !== null ? `${ramUsage.toFixed(1)} GB` : '--';
-  const cpuStr = cpuUsage !== null ? `${cpuUsage.toFixed(0)}%` : '--';
+  const vramStr = (vramUsage !== null && vramUsage !== undefined) ? `${Number(vramUsage).toFixed(1)} GB` : '--';
+  const ramStr = (ramUsage !== null && ramUsage !== undefined) ? `${Number(ramUsage).toFixed(1)} GB` : '--';
+  const cpuStr = (cpuUsage !== null && cpuUsage !== undefined) ? `${Number(cpuUsage).toFixed(0)}%` : '--';
   const isIndexing = ragProgress !== null;
   const daemonOk = daemonStatus === 'running' && telemetryStatus === 'ok';
 

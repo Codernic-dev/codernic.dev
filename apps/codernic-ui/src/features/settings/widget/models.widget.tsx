@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgnosticJsonEditorWidget, type AgnosticItem } from '../../../features/json-editor/components/agnostic-json-editor/AgnosticJsonEditorWidget';
 import { getOllamaUrl } from '../../../shared/config';
 import { selectJsonEditorSchemas, selectLlmProviders } from '../../../entities/assets/model/assets-slice';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function ModelsWidget({ dataTestId, id }: { id?: string; dataTestId?: string }) {
   const { rootId, getTestId } = useTestId('models-widget', dataTestId);

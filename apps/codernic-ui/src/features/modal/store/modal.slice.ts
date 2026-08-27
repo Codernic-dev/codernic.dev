@@ -1,10 +1,15 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { createSlice, type PayloadAction, createAction } from '@reduxjs/toolkit';
 import { createModalState } from '@binaryjack/state-factories';
 
 export interface ModalConfig {
   title: string;
   message?: string;
-  type?: 'confirm' | 'alert' | 'prompt' | 'spinner';
+  type?: 'confirm' | 'alert' | 'prompt' | 'spinner' | 'splash';
   confirmText?: string;
   cancelText?: string;
 }

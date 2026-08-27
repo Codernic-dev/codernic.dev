@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectDags, selectJsonEditorSchemas } from '../../../entities/assets/model/assets-slice';
@@ -5,7 +10,7 @@ import { sendIntent } from '../../../shared/store/intent';
 import { AgnosticJsonEditorWidget } from '../../../features/json-editor/components/agnostic-json-editor/AgnosticJsonEditorWidget';
 
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function DagsWidget({ dataTestId, id = 'dags' }: { id?: string; dataTestId?: string }) {
   const { rootId, getTestId } = useTestId('dags-widget', dataTestId);

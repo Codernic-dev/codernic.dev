@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useMemo, useEffect } from 'react';
-import type { BlockState } from '@ai-agencee/ui/layout-engine';
+import type { BlockState } from '@codernic/components/layout-engine';
 import { DEFAULT_LAYOUTS } from '../model/default-layouts';
 
 export function useLayoutInitialization(

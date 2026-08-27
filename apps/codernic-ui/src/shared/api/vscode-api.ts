@@ -1,18 +1,29 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../store';
+import { isTauri } from '../utils/env';
 declare function acquireVsCodeApi(): {
   postMessage(msg: unknown): void;
   getState(): unknown;
-  setState(state: unknown): void;
 };
 
+export let signalDaemonReady: () => void;
+export const daemonReadyPromise = new Promise<void>((resolve) => {
+  signalDaemonReady = resolve;
+});
 declare const __CODERNIC_WS_PORT__: number | undefined;
 const fallbackPort = typeof __CODERNIC_WS_PORT__ !== 'undefined' ? __CODERNIC_WS_PORT__ : 47321;
 
-const WS_URL =
+const WS_URL_RAW =
   typeof import.meta !== 'undefined'
     ? ((import.meta as { env?: Record<string, string> }).env?.['VITE_CODERNIC_WS_URL'] ??
        `ws://127.0.0.1:${fallbackPort}`)
     : `ws://127.0.0.1:${fallbackPort}`;
+    
+const WS_URL = WS_URL_RAW.endsWith('/ws') ? WS_URL_RAW : `${WS_URL_RAW}/ws`;
 
 /**
  * Creates an auto-reconnecting WebSocket bridge to the VS Code extension's
@@ -34,6 +45,7 @@ function createWsBridge() {
     }
 
     ws.onopen = () => {
+      window.dispatchEvent(new CustomEvent('WS_STATUS_CHANGE', { detail: { status: 'connected' } }));
       import('../../store').then(({ store }) => {
         store.dispatch({
           type: 'system/updateActorStatus',
@@ -57,6 +69,7 @@ function createWsBridge() {
 
     ws.onclose = () => {
       ws = null;
+      window.dispatchEvent(new CustomEvent('WS_STATUS_CHANGE', { detail: { status: 'disconnected' } }));
       import('../../store').then(({ store }) => {
         store.dispatch({
           type: 'system/updateActorStatus',
@@ -78,6 +91,16 @@ function createWsBridge() {
     };
   }
 
+  if (isTauri()) {
+    // In Tauri, the daemon WebSocket is owned exclusively by the telemetry saga.
+    // The vscode-api bridge is only used in VSCode webview / PWA contexts.
+    // We still return a no-op stub so callers (vscode.postMessage etc.) don't crash.
+    return {
+      postMessage: (_msg: unknown) => {},
+      getState: () => undefined as unknown,
+      setState: (_s: unknown) => {},
+    };
+  }
   connect();
 
   return {
@@ -101,7 +124,7 @@ export const vscode = (() => {
   }
   
   if (typeof (window as any).__PLAYWRIGHT__ !== 'undefined' || typeof (window as any).mockVsCodeState !== 'undefined') {
-    console.log('Skipping WebSocket bridge in Playwright test environment');
+    console.log('Skipping WebSocket bridge in Mock environment');
     return {
       postMessage: (msg: unknown) => { console.log('[Mock Fallback postMessage]', msg); },
       getState: () => undefined,
@@ -109,6 +132,6 @@ export const vscode = (() => {
     };
   }
 
-  // Running as a standalone PWA (browser) — bridge via WebSocket
+  // Running as a standalone PWA or Tauri — bridge via WebSocket
   return createWsBridge();
 })();

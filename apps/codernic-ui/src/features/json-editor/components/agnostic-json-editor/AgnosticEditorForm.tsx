@@ -1,13 +1,18 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../../../store';
 import Ajv from 'ajv';
-import { Button } from '@ai-agencee/ui';
-import { IconCode, IconArrowLeft } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
+import { IconCode, IconArrowLeft } from '@codernic/components';
 import Editor from '@monaco-editor/react';
 import { JsonObjectEditor } from '../json-editor/JsonObjectEditor';
 import type { AgnosticItem } from './AgnosticJsonEditorWidget';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface AgnosticEditorFormProps {
   id?: string;

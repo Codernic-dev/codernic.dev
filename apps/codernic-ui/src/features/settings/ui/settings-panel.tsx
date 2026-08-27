@@ -1,6 +1,11 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState } from 'react';
-import { Button } from '@ai-agencee/ui';
-import { IconX } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
+import { IconX } from '@codernic/components';
 
 import { ModelsTab } from './models-tab';
 
@@ -12,7 +17,7 @@ import { RagWidget } from '../../../widgets/settings/rag-widget';
 import { AgentsWidget } from '../../agents/widget/agents.widget';
 import { DagsWidget } from '../../dags/widget/dags.widget';
 import { TechsWidget } from '../../techs/widget/techs.widget';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 interface SettingsPanelProps {
   onClose: () => void;

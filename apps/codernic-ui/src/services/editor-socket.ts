@@ -1,10 +1,16 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 export class EditorSocket {
   private ws: WebSocket | null = null;
   private url: string;
   private onMessageCallback: ((msg: string) => void) | null = null;
 
   constructor(port: number = 8081) {
-    this.url = `ws://localhost:${port}`;
+    const host = typeof window !== 'undefined' && window.location.hostname && window.location.hostname !== 'tauri.localhost' ? window.location.hostname : '127.0.0.1';
+    this.url = `ws://${host}:${port}`;
   }
 
   connect() {

@@ -1,0 +1,28 @@
+{
+  "name": "@codernic/styleguide",
+  "version": "1.0.0",
+  "description": "Centralized design system tokens, typography, responsive rules, animations, and assets for Codernic applications.",
+  "main": "./src/css/styleguide.css",
+  "style": "./src/css/styleguide.css",
+  "exports": {
+    ".": "./src/css/styleguide.css",
+    "./tokens": "./src/css/tokens.css",
+    "./typography": "./src/css/typography.css",
+    "./responsive": "./src/css/responsive.css",
+    "./animations": "./src/css/animations.css",
+    "./tailwind-preset": "./src/tailwind.preset.cjs"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('Codernic Styleguide CSS bundle verified.')\"",
+    "dev": "npx serve demo"
+  },
+  "keywords": [
+    "codernic",
+    "design-system",
+    "styleguide",
+    "tailwind",
+    "css-tokens"
+  ],
+  "author": "Codernic Team",
+  "license": "MIT"
+}

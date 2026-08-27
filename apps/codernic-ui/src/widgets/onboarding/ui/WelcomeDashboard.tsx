@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectSandboxMode } from '../../../entities/app/model/app-slice';
@@ -13,7 +18,11 @@ interface CoreHealthPayload {
 
 import { selectHardwareMetrics } from '../../../entities/telemetry/model/telemetry-slice';
 
-export const WelcomeDashboard: React.FC = () => {
+export interface WelcomeDashboardProps {
+  className?: string;
+}
+
+export const WelcomeDashboard = ({ className = '' }: WelcomeDashboardProps): JSX.Element => {
   const hardware = useSelector(selectHardwareMetrics);
   
   const health: CoreHealthPayload | null = hardware ? {

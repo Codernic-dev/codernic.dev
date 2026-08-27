@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { selectActiveRightPanelTab, setActiveRightPanelTab } from "../../../entities/app/model/app-slice";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentSessionId } from '../../../features/sessions/store/sessions.slice';
@@ -11,7 +16,7 @@ import { ArtifactsPanel } from './ArtifactsPanel';
 import {
   useTestId,
   IconFileText, IconShare2, IconActivity, IconCloud, IconLayers, IconThought
-} from '@ai-agencee/ui';
+} from '@codernic/components';
 
 export type RightPanelTab = 'introspection' | 'artifacts' | 'erathos' | 'analyzer' | 'model-hub' | 'context-window';
 
@@ -84,7 +89,7 @@ const isActive = activeTab === id;
       >
         {activeTab === 'introspection'  && <IntrospectionPanel data-testid={getTestId('introspection-panel')} />}
         {activeTab === 'artifacts'      && <ArtifactsPanel data-testid={getTestId('artifacts-panel')} sessionId={currentSessionId} />}
-        {activeTab === 'erathos'        && <ErathosCanvas data-testid={getTestId('erathos-canvas')} key={currentSessionId || 'default'} />}
+        {activeTab === 'erathos'        && <ErathosCanvas data-testid={getTestId('erathos-canvas')} key={currentSessionId || 'default'} readOnly={true} hideHeader={true} enableScrollZoom={false} />}
         {activeTab === 'analyzer'       && <AnalyzerPanel data-testid={getTestId('analyzer-panel')} />}
         {activeTab === 'model-hub'      && <ModelHubPanel data-testid={getTestId('model-hub-panel')} />}
         {activeTab === 'context-window' && <ContextWindowPanel data-testid={getTestId('context-window-panel')} />}

@@ -1,7 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { JsonObjectEditor } from './JsonObjectEditor';
-import { IconTrash, IconPlus } from '@ai-agencee/ui';
+import { IconTrash, IconPlus } from '@codernic/components';
 import type { JsonEditorProps } from './types';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function JsonArrayEditor({ dataTestId, value, onChange, path = [], schema = {}, parentValue, rootValue, isSplitView }: JsonEditorProps) {
   

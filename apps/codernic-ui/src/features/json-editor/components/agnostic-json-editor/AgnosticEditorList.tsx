@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { Button } from '@ai-agencee/ui';
-import { IconEdit, IconTrash, IconPlus } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
+import { IconEdit, IconTrash, IconPlus } from '@codernic/components';
 import type { AgnosticItem } from './AgnosticJsonEditorWidget';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface AgnosticEditorListProps {
   title: string;

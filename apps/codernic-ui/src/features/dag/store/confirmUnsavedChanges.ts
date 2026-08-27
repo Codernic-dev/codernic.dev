@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { store } from '../../../store';
 import { setDiffModalOpen, selectIsErathosDirty, setErathosSchema } from './dag.slice';
 import { setErathosSnapshot } from '../../sessions/store/sessions.slice';

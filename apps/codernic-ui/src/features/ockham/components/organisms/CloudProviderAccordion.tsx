@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { Accordion } from '@ai-agencee/ui';
+import { Accordion } from '@codernic/components';
 import { ProviderCardHeader } from '../molecules/ProviderCardHeader';
 import { CloudModelRow } from '../molecules/CloudModelRow';
 import type { CloudProvider, CloudModel } from '../../../models/store/models.slice';

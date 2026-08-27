@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { apiClient } from '../../../shared/api/api-client';
 import { appendMessage, setSending } from './enterprise-chatbot.slice';

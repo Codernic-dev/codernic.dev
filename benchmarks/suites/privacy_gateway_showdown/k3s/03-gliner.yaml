@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gliner-bench
+  namespace: privacy-showdown
+  labels:
+    app: gliner-bench
+    engine: gliner-ner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gliner-bench
+  template:
+    metadata:
+      labels:
+        app: gliner-bench
+    spec:
+      containers:
+        - name: gliner-model
+          image: urchade/gliner_base:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5002
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1024Mi"
+            limits:
+              cpu: "2000m"
+              memory: "4096Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5002
+            initialDelaySeconds: 5
+            periodSeconds: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gliner-service
+  namespace: privacy-showdown
+spec:
+  selector:
+    app: gliner-bench
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002

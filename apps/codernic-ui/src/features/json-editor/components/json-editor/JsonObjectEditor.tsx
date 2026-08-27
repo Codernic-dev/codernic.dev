@@ -1,10 +1,15 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { JsonPrimitiveEditor } from './JsonPrimitiveEditor';
-import { AgnosticDropdown } from '@ai-agencee/ui';
+import { AgnosticDropdown } from '@codernic/components';
 import { useSelector } from 'react-redux';
 import { vscode } from '../../../../shared/api/vscode-api';
 import { JsonArrayEditor } from './JsonArrayEditor';
 import type { JsonEditorProps } from './types';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function JsonObjectEditor({ dataTestId, value, onChange, path = [], schema = {}, parentValue, rootValue, isSplitView }: JsonEditorProps) {
   

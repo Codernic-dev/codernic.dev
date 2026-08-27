@@ -1,0 +1,14 @@
+{
+  "protocol_id": "PROTO-DEMING-INFERENCE-V1",
+  "title": "Codernic Deming Inference Benchmark Protocol",
+  "target_binary": "codernic-bench",
+  "iterations": 10,
+  "warmup_iterations": 3,
+  "variance_threshold_cv": 0.01,
+  "dataset": "benchmarks/fml_golden_datasets/juris_corpus_v1.json",
+  "environment": {
+    "execution_target": "kubernetes_k3s_pod",
+    "container_image": "codernic/bench-runner:latest",
+    "gpu_required": true
+  }
+}

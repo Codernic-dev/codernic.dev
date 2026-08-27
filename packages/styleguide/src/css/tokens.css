@@ -1,0 +1,86 @@
+/**
+ * Codernic Sovereign AI Ecosystem — Core Design System Tokens
+ * Defines CSS custom variables for colors, surfaces, radii, and pillar identity.
+ */
+
+:root {
+  /* ── Codernic Primary Accent (Amber) ────────────────────────────────── */
+  --amber-50:  #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-200: #fde68a;
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --amber-800: #92400e;
+  --amber-900: #78350f;
+  --amber-950: #451a03;
+
+  /* ── 5 Sovereignty Pillars Color Matrix ────────────────────────────── */
+  /* Pillar 01: Execution — Deming Bare-Metal Engine */
+  --pillar-deming:       #f87171;
+  --pillar-deming-glow:  rgba(248, 113, 113, 0.3);
+  --pillar-deming-bg:    rgba(248, 113, 113, 0.08);
+
+  /* Pillar 02: Memory — Ragtime Semantic Context Vault */
+  --pillar-ragtime:      #60a5fa;
+  --pillar-ragtime-glow: rgba(96, 165, 250, 0.3);
+  --pillar-ragtime-bg:   rgba(96, 165, 250, 0.08);
+
+  /* Pillar 03: Governance — Galileus Multi-Agent DAG Arbitrator */
+  --pillar-galileus:     #4ade80;
+  --pillar-galileus-glow:rgba(74, 222, 128, 0.3);
+  --pillar-galileus-bg:  rgba(74, 222, 128, 0.08);
+
+  /* Pillar 04: Optimization — Ockham Prompt Compressor */
+  --pillar-ockham:       #2dd4bf;
+  --pillar-ockham-glow:  rgba(45, 212, 191, 0.3);
+  --pillar-ockham-bg:    rgba(45, 212, 191, 0.08);
+
+  /* Pillar 05: Security — Pirsig DLP & AST Firewall */
+  --pillar-pirsig:       #a78bfa;
+  --pillar-pirsig-glow:  rgba(167, 139, 250, 0.3);
+  --pillar-pirsig-bg:    rgba(167, 139, 250, 0.08);
+
+  /* ── Neutral Scales (Sovereign Dark Theme) ─────────────────────────── */
+  --neutral-50:  #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-850: #1c1c1c;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+
+  /* ── Semantic Design Tokens ────────────────────────────────────────── */
+  --color-bg:          var(--neutral-950);
+  --color-surface:     var(--neutral-900);
+  --color-surface-elevated: var(--neutral-850);
+  --color-border:      #2a2a2a;
+  --color-border-hover:rgba(251, 191, 36, 0.3);
+  --color-text:        var(--neutral-100);
+  --color-muted:       var(--neutral-400);
+  --color-accent:      var(--amber-400);
+  --color-accent-hover:var(--amber-300);
+
+  /* ── Corner Radii ─────────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Ambient Glows & Shadows ───────────────────────────────────────── */
+  --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.8);
+  --amber-glow: 0 0 32px -6px rgba(251, 191, 36, 0.35);
+  --glass-bg: rgba(23, 23, 23, 0.7);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+}

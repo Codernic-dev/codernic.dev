@@ -1,0 +1,66 @@
+/**
+ * Codernic Sovereign AI Ecosystem — Micro-Animations & Glow Effects
+ */
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
+}
+
+@keyframes pulse-glow-amber {
+  0%, 100% { box-shadow: 0 0 20px -4px rgba(251, 191, 36, 0.2); }
+  50%       { box-shadow: 0 0 36px -4px rgba(251, 191, 36, 0.5); }
+}
+
+.gradient-text-animated {
+  background: linear-gradient(
+    90deg,
+    var(--amber-300) 0%,
+    var(--amber-500) 40%,
+    var(--amber-200) 60%,
+    var(--amber-500) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease both;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-amber {
+  animation: pulse-glow-amber 3s ease-in-out infinite;
+}
+
+/* Pillar-specific Hover Lift & Ambient Glow */
+.glow-deming:hover  { box-shadow: 0 8px 32px -8px var(--pillar-deming-glow);  border-color: var(--pillar-deming); }
+.glow-ragtime:hover { box-shadow: 0 8px 32px -8px var(--pillar-ragtime-glow); border-color: var(--pillar-ragtime); }
+.glow-galileus:hover{ box-shadow: 0 8px 32px -8px var(--pillar-galileus-glow);border-color: var(--pillar-galileus); }
+.glow-ockham:hover  { box-shadow: 0 8px 32px -8px var(--pillar-ockham-glow);  border-color: var(--pillar-ockham); }
+.glow-pirsig:hover  { box-shadow: 0 8px 32px -8px var(--pillar-pirsig-glow);  border-color: var(--pillar-pirsig); }

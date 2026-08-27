@@ -1,6 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
+import * as yaml from 'yaml';
 
 export interface FrontendEngineConfig {
   network: {
@@ -27,15 +33,20 @@ export class FrontendConfigManager {
     };
 
     try {
-      const engineJsonPath = path.join(defaultCodernicApp, 'engine.json');
-      if (fs.existsSync(engineJsonPath)) {
-        const content = fs.readFileSync(engineJsonPath, 'utf8');
-        const json = JSON.parse(content);
-        if (json.network) {
-          defaults.network = { ...defaults.network, ...json.network };
+      const engineYamlPath = path.join(defaultCodernicApp, 'engine.yaml');
+      
+      let parsedConfig: any = null;
+      if (fs.existsSync(engineYamlPath)) {
+        const content = fs.readFileSync(engineYamlPath, 'utf8');
+        parsedConfig = yaml.parse(content);
+      }
+
+      if (parsedConfig) {
+        if (parsedConfig.network) {
+          defaults.network = { ...defaults.network, ...parsedConfig.network };
         }
-        if (json.systemPaths) {
-          defaults.systemPaths = { ...defaults.systemPaths, ...json.systemPaths };
+        if (parsedConfig.systemPaths) {
+          defaults.systemPaths = { ...defaults.systemPaths, ...parsedConfig.systemPaths };
         }
       }
     } catch (e) {

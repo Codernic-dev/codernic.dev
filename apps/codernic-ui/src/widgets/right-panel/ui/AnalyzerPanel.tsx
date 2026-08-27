@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../../store';
 import { useSelector } from 'react-redux';
 import { selectAnalyseProgress, selectIntrospectionEvents, selectPirsigMetrics, setAnalyseProgress } from '../../../features/dag/store/dag.slice';
@@ -6,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import {
   useTestId,
   IconShield, IconPlay, IconCheck, IconX, IconRepeat, IconTool, IconThought, IconDot,
-} from '@ai-agencee/ui';
+} from '@codernic/components';
 
 /* ── Shared panel section wrapper ── */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

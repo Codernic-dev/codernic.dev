@@ -1,10 +1,15 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectLocalModels } from '../../../features/models/store/models.slice';
 import { selectHardwareMetrics } from '../../../entities/telemetry/model/telemetry-slice';
 import { ModelSelectionCard } from './ModelSelectionCard';
 import { sendIntent } from '../../../shared/store/intent';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function ModelSelectionWidget({ dataTestId }: { dataTestId?: string }) {
   const { rootId, getTestId } = useTestId('model-selection-widget', dataTestId);

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: deming-showdown
+  labels:
+    bench.codernic.dev/suite: deming-showdown
+    bench.codernic.dev/standard: iso-17025

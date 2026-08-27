@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../../store';
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,7 +23,7 @@ import { vscode } from '../../../shared';
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
 import { submitChatMessage } from '../store/chat.saga';
 
-import { SequencerLauncherWidget, architectureTourConfig, fsmTourConfig, modelHubTourConfig, exhaustiveDebugDemoSequence, debugAllStatesSequence } from '@ai-agencee/ui';
+import { SequencerLauncherWidget, architectureTourConfig, fsmTourConfig, modelHubTourConfig, exhaustiveDebugDemoSequence, debugAllStatesSequence } from '@codernic/components';
 import { OnboardingHero } from '../../../features/chat/components/organisms/OnboardingHero';
 
 import { MessageFeed } from '../../../features/chat/components/organisms/message-feed';
@@ -26,8 +31,8 @@ import { ChatInput } from '../../../features/chat/components/organisms/chat-inpu
 import { ContextBadgeList } from '../../../features/context-files';
 import { GlobalLoader } from '../../../app/ui/GlobalLoader';
 
-import { useIntrospection } from '../../../../../../packages/ui/src/introspection/hooks/useIntrospection';
-import { useTestId } from '@ai-agencee/ui';
+import { useIntrospection } from '../../../../../../packages/components/src/introspection/hooks/useIntrospection';
+import { useTestId } from '@codernic/components';
 
 export function ChatWidget({ dataTestId }: { dataTestId?: string } = {}) {
   const { rootId, getTestId } = useTestId('chat-widget', dataTestId);

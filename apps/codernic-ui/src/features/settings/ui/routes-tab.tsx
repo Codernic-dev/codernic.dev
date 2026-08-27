@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJsonEditorSchemas, selectLlmRoutes, selectActiveRouteProfile } from '../../../entities/assets/model/assets-slice';
 import { JsonAccordionEditor } from '../../../features/json-editor/components/json-editor/JsonAccordionEditor';
 import { sendIntent } from '../../../shared/store/intent';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function RoutesTab() {
   const { rootId, getTestId } = useTestId('routes-tab', typeof dataTestId !== 'undefined' ? dataTestId : undefined);

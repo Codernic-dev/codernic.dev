@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import { dagStrategyRegistry } from '../../../entities/kernel/model/use-kernel-tracker/dag-strategies/dag-strategy-registry';
@@ -30,9 +35,16 @@ export interface DagState {
   erathosSchema: any | null;
   diffModalOpen: boolean;
   isErathosSyncing: boolean;
+
+  telemetryAssets: { states: string[], effects: string[] } | null;
+  telemetryFormat: any | null;
 }
 
-const initialState: DagState = createDagState() as unknown as DagState;
+const initialState: DagState = {
+  ...createDagState() as unknown as Omit<DagState, 'telemetryAssets' | 'telemetryFormat'>,
+  telemetryAssets: null,
+  telemetryFormat: null,
+};
 
 export const dagSlice = createSlice({
   name: 'dag',
@@ -108,6 +120,12 @@ export const dagSlice = createSlice({
     setDiffModalOpen(state, action: PayloadAction<boolean>) {
       state.diffModalOpen = action.payload;
     },
+    setTelemetryAssets(state, action: PayloadAction<{ states: string[], effects: string[] } | null>) {
+      state.telemetryAssets = action.payload;
+    },
+    setTelemetryFormat(state, action: PayloadAction<any | null>) {
+      state.telemetryFormat = action.payload;
+    },
     setApprovalRequest(state, action: PayloadAction<{ id: string; prompt: string } | null>) {
       state.approvalRequest = action.payload;
     },
@@ -126,8 +144,14 @@ export const dagSlice = createSlice({
     sendSchemaToCodernic(_state, _action: PayloadAction<{ schema: any }>) {
       // Saga intercepts this
     },
+    syncSchemaToCodernicSilent(_state, _action: PayloadAction<{ schema: any }>) {
+      // Saga intercepts this for silent telemetry updates
+    },
     setErathosSyncing(state, action: PayloadAction<boolean>) {
       state.isErathosSyncing = action.payload;
+    },
+    startTelemetryDemo() {
+      // Saga intercepts this to play the telemetry demo loop
     },
   },
 });
@@ -156,7 +180,9 @@ export const {
   resolveArtifactReview,
   saveSchemaLocal,
   sendSchemaToCodernic,
+  syncSchemaToCodernicSilent,
   setErathosSyncing,
+  startTelemetryDemo,
 } = dagSlice.actions;
 
 export const selectAgentRun = (state: RootState, sessionId: string) => state.dag.agentRunBySession[sessionId] || null;

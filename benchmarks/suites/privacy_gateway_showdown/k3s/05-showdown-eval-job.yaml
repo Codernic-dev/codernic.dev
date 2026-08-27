@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: privacy-showdown-evaluator
+  namespace: privacy-showdown
+  labels:
+    bench.codernic.dev/role: evaluator
+spec:
+  template:
+    metadata:
+      labels:
+        bench.codernic.dev/role: evaluator
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: evaluator
+          image: python:3.11-slim
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "Starting ISO-17025 Showdown Evaluation Job..."
+              cd /workspace/benchmarks/suites/privacy_gateway_showdown/runners
+              python3 evaluate_showdown_metrics.py
+          volumeMounts:
+            - name: bench-workspace
+              mountPath: /workspace
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+      volumes:
+        - name: bench-workspace
+          hostPath:
+            path: /home/tadeop/dev/Codernic-Workspace/codernic-bench-standalone
+            type: Directory

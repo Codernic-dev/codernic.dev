@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../../store';
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -5,7 +10,7 @@ import { selectAnalyseProgress, setAnalyseProgress } from '../../../features/dag
 import { AnalyseProgressPanel } from '../../../widgets/analyse-progress/ui/analyse-progress-panel';
 
 import { ErrorBoundary } from '../../../app/ErrorBoundary';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function AnalyseWidget({ dataTestId }: { dataTestId?: string }) {
   

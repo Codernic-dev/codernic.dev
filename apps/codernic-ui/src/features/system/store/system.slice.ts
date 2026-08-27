@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { InfraStats, ContextStats } from '../../../entities/kernel/model/types';
@@ -5,6 +10,8 @@ import type { InfraStats, ContextStats } from '../../../entities/kernel/model/ty
 import type { InferenceMetrics } from '../../../entities/kernel/model/types';
 import type { RootState } from '../../../store';
 import { createSystemState } from '@binaryjack/state-factories';
+
+import type { EngineConfigPayload } from '../../../shared/api/tauri-ipc';
 
 export type ActorType = 'Daemon' | 'Configuration' | 'Models' | 'VSCode';
 export type ActorStatus = 'connected' | 'disconnected' | 'error';
@@ -29,14 +36,22 @@ export interface SystemState {
   wsStatus: 'connecting' | 'connected' | 'disconnected';
   actors: Record<ActorType, ActorState>;
   loraTrainingStatus: string | null;
+  licenseModules: string[];
+  engineConfig: EngineConfigPayload | null;
 }
 
-const initialState: SystemState = createSystemState() as unknown as SystemState;
+const initialState: SystemState = {
+  ...(createSystemState() as unknown as SystemState),
+  engineConfig: null,
+};
 
 export const systemSlice = createSlice({
   name: 'system',
   initialState,
   reducers: {
+    setEngineConfig(state, action: PayloadAction<EngineConfigPayload | null>) {
+      state.engineConfig = action.payload;
+    },
     setAppVersion(state, action: PayloadAction<string | null>) {
       state.appVersion = action.payload;
     },
@@ -121,10 +136,14 @@ export const systemSlice = createSlice({
     setLoraTrainingStatus(state, action: PayloadAction<string | null>) {
       state.loraTrainingStatus = action.payload;
     },
+    setLicenseModules(state, action: PayloadAction<string[]>) {
+      state.licenseModules = action.payload;
+    },
   },
 });
 
 export const {
+  setEngineConfig,
   setAppVersion,
   setInfraStats,
   setContextStats,
@@ -134,8 +153,10 @@ export const {
   setWsStatus,
   updateActorStatus,
   setLoraTrainingStatus,
+  setLicenseModules,
 } = systemSlice.actions;
 
+export const selectEngineConfig = (state: RootState) => state.system.engineConfig;
 export const selectAppVersion = (state: RootState) => state.system.appVersion;
 export const selectInfraStats = (state: RootState) => state.system.infraStats;
 export const selectContextStats = (state: RootState) => state.system.contextStats;
@@ -151,5 +172,6 @@ export const selectSystemLogs = (state: RootState) => state.system.systemLogs;
 export const selectWsStatus = (state: RootState) => state.system.wsStatus;
 export const selectActorStatus = (actor: ActorType) => (state: RootState) => state.system.actors[actor];
 export const selectLoraTrainingStatus = (state: RootState) => state.system.loraTrainingStatus;
+export const selectLicenseModules = (state: RootState) => state.system.licenseModules;
 
 export default systemSlice.reducer;

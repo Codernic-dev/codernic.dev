@@ -1,6 +1,11 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { IconTerminal } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { IconTerminal } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 export interface SystemLogsConsoleProps {
   isOpen: boolean;
@@ -25,10 +30,10 @@ if (!isOpen) return null;
         <IconTerminal data-testid={getTestId('icon-terminal')} size={11} className="text-[var(--text-muted)]" />
         <span className="section-label">System Logs</span>
       </div>
-      {systemLogs.length === 0 ? (
+      {!systemLogs || systemLogs.length === 0 ? (
         <div className="text-[var(--text-muted)] italic">No system logs available</div>
       ) : (
-        systemLogs.map((log, idx) => {
+        systemLogs?.map((log, idx) => {
           const isError = log.includes('ERROR') || log.includes('error');
           const isWarn = log.includes('WARN') || log.includes('warn');
           return (

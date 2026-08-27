@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { RootState } from '../../store';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,7 +15,7 @@ import { useKeyboardShortcut } from '../../shared/hooks/useKeyboardShortcut';
 import { useSystemMetrics } from '../../features/system/hooks/useSystemMetrics';
 
 import { selectSandboxMode } from '../../entities/app/model/app-slice';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function StatusBarFooter() {
   const { getTestId } = useTestId('status-bar-footer');

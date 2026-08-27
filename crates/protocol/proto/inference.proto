@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package inference;
+
+service InferenceService {
+  rpc DetectAnomaly (AnomalyRequest) returns (AnomalyResponse);
+}
+
+message AnomalyRequest {
+  string text = 1;
+}
+
+message AnomalyResponse {
+  bool is_anomalous = 1;
+  float score = 2;
+}

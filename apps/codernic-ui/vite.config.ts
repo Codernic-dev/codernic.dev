@@ -1,7 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import fs from 'fs';
 import { FrontendConfigManager } from './src/shared/config/config-paths';
 
 const engineConfig = FrontendConfigManager.getEngineConfig();
@@ -10,16 +16,31 @@ const uiPort = engineConfig.network.ui_dev_port || 5173;
 const mcpPort = 9743;
 const ollamaUrl = 'http://127.0.0.1:11434';
 
+// Helper to resolve atomos monorepo packages safely across directory layout variations
+const resolveAtomosPackage = (pkgSubpath: string) => {
+  const candidates = [
+    path.resolve(__dirname, '../../../atomos/packages', pkgSubpath),
+    path.resolve(__dirname, '../../../atomos-monorepo/packages', pkgSubpath),
+    path.resolve(__dirname, '../../node_modules/@atomos-web', pkgSubpath),
+    path.resolve(__dirname, 'node_modules/@atomos-web', pkgSubpath),
+  ];
+  for (const cand of candidates) {
+    if (fs.existsSync(cand)) {
+      return cand;
+    }
+  }
+  return candidates[0];
+};
+
 // Ensure Vite exposes these to the client via import.meta.env
-const gatewayPort = wsPort + 1000;
-process.env.VITE_CODERNIC_WS_URL = process.env.VITE_CODERNIC_WS_URL || `ws://127.0.0.1:${gatewayPort}`;
+process.env.VITE_CODERNIC_WS_URL = process.env.VITE_CODERNIC_WS_URL || `ws://127.0.0.1:${wsPort}`;
 process.env.VITE_DAEMON_HTTP_URL = process.env.VITE_DAEMON_HTTP_URL || `http://127.0.0.1:${wsPort}`;
 process.env.VITE_ERATHOS_MCP_URL = process.env.VITE_ERATHOS_MCP_URL || `http://127.0.0.1:${mcpPort}`;
 process.env.VITE_OLLAMA_URL = process.env.VITE_OLLAMA_URL || ollamaUrl;
 
 export default defineConfig({
   define: {
-    __CODERNIC_WS_PORT__: gatewayPort,
+    __CODERNIC_WS_PORT__: wsPort,
   },
   server: {
     port: uiPort,
@@ -27,19 +48,22 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@atomos-web/structura/webview': path.resolve('../../../atomos-monorepo/packages/atomos-structura/dist/webview/index.js'),
-      '@atomos-web/structura': path.resolve('../../../atomos-monorepo/packages/atomos-structura/dist/index.js'),
-      '@atomos-web/structura-core': path.resolve('../../../atomos-monorepo/packages/atomos-structura-core/dist/index.js'),
-      '@atomos-web/prime': path.resolve('../../../atomos-monorepo/packages/atomos-prime/dist/index.js'),
-      '@atomos-web/prime-style': path.resolve('../../../atomos-monorepo/packages/atomos-prime-style'),
-      '@atomos-web/structura-mcp': path.resolve('../../../atomos-monorepo/packages/atomos-structura-mcp/dist/index.js'),
-      '@binaryjack/formular.dev': path.resolve('../../../atomos-monorepo/packages/formular-dev/dist/formular-dev.mjs'),
+      '@atomos-web/structura/webview': resolveAtomosPackage('atomos-structura/dist/webview/index.js'),
+      '@atomos-web/structura': resolveAtomosPackage('atomos-structura/dist/index.js'),
+      '@atomos-web/structura-core': resolveAtomosPackage('atomos-structura-core/dist/index.js'),
+      '@atomos-web/prime': resolveAtomosPackage('atomos-prime/dist/index.js'),
+      '@atomos-web/prime-style': resolveAtomosPackage('atomos-prime-style'),
+      '@atomos-web/structura-mcp': resolveAtomosPackage('atomos-structura-mcp/dist/index.js'),
+      '@binaryjack/formular.dev': resolveAtomosPackage('formular-dev/dist/formular-dev.mjs'),
     }
   },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
       manifest: {
         name: 'Codernic Mission Control',
         short_name: 'Codernic',

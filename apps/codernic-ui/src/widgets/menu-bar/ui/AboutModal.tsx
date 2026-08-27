@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useSelector } from 'react-redux';
 import { selectAppVersion } from '../../../features/system/store/system.slice';
-import { Button } from '@ai-agencee/ui';
-import { IconX, IconCodernic } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
+import { IconX, IconCodernic } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 export interface IAboutModalProps {
   isOpen: boolean;

@@ -1,14 +1,20 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { EventChannel } from 'redux-saga';
 import { buffers, eventChannel } from 'redux-saga';
 import { all, call, fork, put, take, takeEvery } from 'redux-saga/effects';
 import { vscode } from '../../../shared/api/vscode-api';
 import { sendIntent } from '../../../shared/store/intent';
-import { setWsStatus, setContextStats, updateSystemStatus, appendSystemLogsBatch } from './system.slice';
+import { setWsStatus, setContextStats, updateSystemStatus, appendSystemLogsBatch, setInfraStats } from './system.slice';
 import { setSandboxMode } from '../../../entities/app/model/app-slice';
 import { setDownloadStarted, setDownloadProgress, setDownloadDone } from '../../models/store/models.slice';
 import { setValidationErrors } from '../../layout-engine/store/ui-commands.slice';
 import { delay } from 'redux-saga/effects';
-import { getMockData } from './mock-data-mapper';
+import { getCodernicHttpUrl, getOllamaUrl } from '../../../shared/config';
+import { sendCoreWebSocketMessage } from '../../../entities/kernel/model/telemetry-saga';
 
 type WsMessage = { type: string; payload?: unknown };
 
@@ -16,9 +22,8 @@ const outboxBuffer: unknown[] = [];
 
 function createVsCodeChannel(): EventChannel<WsMessage> {
   return eventChannel((emitter) => {
-    emitter({ type: 'WS_STATUS_CHANGE', payload: 'connected' });
     vscode.postMessage({ type: 'codernic:request-assets' });
-    vscode.postMessage({ type: 'codernic:get-local-models' });
+    vscode.postMessage({ type: 'codernic:request-llms' });
 
     while (outboxBuffer.length > 0) {
       const payload = outboxBuffer.shift();
@@ -26,10 +31,18 @@ function createVsCodeChannel(): EventChannel<WsMessage> {
     }
 
     const handler = (event: MessageEvent) => {
-      if (event.data && typeof event.data === 'object' && 'type' in event.data) {
-        if (typeof event.data.type === 'string' && (event.data.type.startsWith('codernic:') || event.data.type.startsWith('ac:') || event.data.type === 'kernel_state_update' || event.data.type === 'ArtifactRequestedReview')) {
-          console.log('SAGA IN:', event.data);
-          emitter({ type: 'WS_MESSAGE_RECEIVED', payload: event.data });
+      if (event.data && typeof event.data === 'object') {
+        // Handle MessageBusEnvelope (Telemetry)
+        if ('topic' in event.data && typeof event.data.topic === 'string') {
+          console.log('SAGA IN (BUS):', event.data);
+          emitter({ type: 'WS_MESSAGE_RECEIVED', payload: { type: event.data.topic, payload: event.data.payload } });
+        }
+        // Handle standard VSCode/WebSocket intents
+        else if ('type' in event.data && typeof event.data.type === 'string') {
+          if (event.data.type.startsWith('codernic:') || event.data.type.startsWith('ac:') || event.data.type === 'kernel_state_update' || event.data.type === 'ArtifactRequestedReview') {
+            console.log('SAGA IN:', event.data);
+            emitter({ type: 'WS_MESSAGE_RECEIVED', payload: event.data });
+          }
         }
       }
     };
@@ -65,9 +78,10 @@ function* watchOutgoing(): Generator {
           yield put(updateSystemStatus({ daemonStatus: 'starting' }));
         }
       }
+      sendCoreWebSocketMessage(msg);
       vscode.postMessage(msg);
     } catch (err) {
-      console.error('[SAGA WS] Erreur d\'envoi', err);
+      console.error('[SAGA WS] Error sending intent:', err);
     }
   });
 }
@@ -101,6 +115,19 @@ function* handleSystemEvents(action: SystemWsAction) {
     if (payload.files) {
        yield put({ type: 'chat/setContextFiles', payload: payload.files });
     }
+  } else if (type === 'WS/infra.telemetry.vram') {
+    // Read from the MessageBusEnvelope payload correctly
+    yield put(setInfraStats({
+      vram_used: payload.vram_used || 0,
+      vram_total: payload.vram_total || 0,
+      vram_available: payload.vram_available || 0,
+      vram_required: payload.vram_required || 0,
+      ram_used: payload.ram_used,
+      ram_total: payload.ram_total,
+      cpu_usage: payload.cpu_usage,
+      daemon_version: payload.daemon_version,
+      hardware_type: payload.hardware_type,
+    }));
   }
 }
 
@@ -123,147 +150,99 @@ interface SequencerStepAction {
   };
 }
 
-function* handleSequencerStep(action: SequencerStepAction) {
+function* handleSequencerStep(action: SequencerStepAction): Generator<any, void, any> {
   const { widget, data } = action.payload;
 
-  if (typeof data === 'string' && data.startsWith('SIMULATE_')) {
-    // Legacy hardcoded handlers
-    if (data === 'SIMULATE_AJV_ERROR') {
-      yield put(setValidationErrors({
-        id: widget,
-        errors: [
-          "should have required property 'active_lora'",
-          "should match pattern '^[a-zA-Z0-9_-]+$'"
-        ]
-      }));
-    } else if (data === 'SIMULATE_DOWNLOAD_HF') {
-      yield put(setDownloadStarted({
-        id: 'demo-download',
-        modelId: 'meta-llama/Llama-3-8B',
-        file: 'model.safetensors',
-        providerName: 'HuggingFace'
-      }));
-      yield delay(1000);
-      yield put(setDownloadProgress({ id: 'demo-download', progress: '35%' }));
-      yield delay(1000);
-      yield put(setDownloadProgress({ id: 'demo-download', progress: '75%' }));
-      yield delay(1000);
-      yield put(setDownloadDone({ id: 'demo-download' }));
-    } else if (data === 'SIMULATE_SANDBOX_WORKTREE') {
-      yield put(appendSystemLogsBatch([
-        '[SANDBOX] Starting isolated worktree check...',
-        '[SANDBOX] Initializing environment clone in workspace directory...',
-        '[SANDBOX] Worktree verification successful. Workspace is clean.'
-      ]));
+  try {
+    const HTTP_URL = getCodernicHttpUrl();
+    const response = yield call(fetch, `${HTTP_URL}/api/v1/sequencer/step`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ widget, data })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to execute sequencer step: ${response.statusText}`);
     }
-    return;
-  }
-
-  // Generic Mock Data Injection Mapper
-  let mockState: any = null;
-  if (typeof data === 'string') {
-    // Fallback to old behavior for backward compatibility (if any strings are left)
-    mockState = getMockData(widget, data);
-  } else if (typeof data === 'object' && data !== null) {
-    mockState = data;
-  }
-
-  if (mockState && mockState.data) {
-      console.log(`[Sequencer] Injecting mock data into slice '${mockState.slice}' for widget '${widget}'`);
+    
+    const realState = yield call([response, response.json]);
+    
+    if (realState && realState.slice) {
+      // In a real environment, the backend would either return the exact Redux actions 
+      // or we dispatch a generic state update action for the given slice.
+      console.log(`[Sequencer] Received state from backend for slice '${realState.slice}'`);
       
-      // Dispatch a standard payload depending on the slice
-      switch (mockState.slice) {
+      switch (realState.slice) {
         case 'chat':
-          if (mockState.data.messages) {
-            yield put({ type: 'chat/setMessages', payload: mockState.data.messages });
-          }
-          if (mockState.data.contextFiles) {
-            yield put({ type: 'chat/setContextFiles', payload: mockState.data.contextFiles });
-          }
-          if (mockState.data.isAutopilot !== undefined) {
-             yield put({ type: 'chat/setAutopilot', payload: mockState.data.isAutopilot });
-          }
-          if (mockState.data.isRagEnabled !== undefined) {
-             yield put({ type: 'chat/setRagEnabled', payload: mockState.data.isRagEnabled });
-          }
-          if (mockState.data.activeMode) {
-             yield put({ type: 'chat/setActiveMode', payload: mockState.data.activeMode });
-          }
+          if (realState.data.messages) yield put({ type: 'chat/setMessages', payload: realState.data.messages });
+          if (realState.data.contextFiles) yield put({ type: 'chat/setContextFiles', payload: realState.data.contextFiles });
+          if (realState.data.isAutopilot !== undefined) yield put({ type: 'chat/setAutopilot', payload: realState.data.isAutopilot });
           break;
         case 'sessions':
-          if (mockState.data.list) {
-            const sessionsRecord: Record<string, any> = {};
-            mockState.data.list.forEach((s: any) => {
-              sessionsRecord[s.id] = {
-                id: s.id,
-                name: s.name,
-                status: 'idle',
-                last_updated: new Date(s.date).getTime()
-              };
-            });
-            yield put({ type: 'sessions/setSessions', payload: sessionsRecord });
-          }
-          if (mockState.data.currentId) {
-            yield put({ type: 'sessions/setCurrentSessionId', payload: mockState.data.currentId });
-          }
+          if (realState.data.list) yield put({ type: 'sessions/setSessions', payload: realState.data.list });
           break;
         case 'artifacts':
-          if (mockState.data.items) {
-             yield put({ type: 'artifacts/fetchArtifactsSuccess', payload: mockState.data.items });
-          }
-          break;
-        case 'models':
-          if (mockState.data.localModels) {
-             yield put({ type: 'models/setLocalModels', payload: mockState.data.localModels });
-          }
-          if (mockState.data.activeDownloads) {
-             for (const dl of mockState.data.activeDownloads) {
-               yield put({ type: 'models/setDownloadStarted', payload: { id: dl.id, modelId: dl.model } });
-               yield put({ type: 'models/setDownloadProgress', payload: { id: dl.id, progress: dl.progress } });
-             }
-          }
-          break;
-        case 'pirsig':
-          yield put({ type: 'dag/setPirsigMetrics', payload: {
-            kpi_score: mockState.data.kpi_score || mockState.data.score || 0,
-            symbols_count: mockState.data.symbols_count || 0,
-            qualitative_flags: mockState.data.qualitative_flags || mockState.data.flags || []
-          }});
-          break;
-        case 'introspection':
-          if (mockState.data.nodes) {
-             yield put({ type: 'introspection/initIntrospection', payload: { introspectionId: 'mock-intro', sessionId: 'mock-session', mode: 'deterministic' } });
-             yield put({ type: 'introspection/setActiveIntrospection', payload: 'mock-intro' });
-             for (const node of mockState.data.nodes) {
-               yield put({ type: 'introspection/addIntrospectionNode', payload: { introspectionId: 'mock-intro', node } });
-             }
-          }
-          if (mockState.data.confidence !== undefined) {
-             yield put({ type: 'introspection/setConfidenceScore', payload: { introspectionId: 'mock-intro', score: mockState.data.confidence } });
-          }
+          if (realState.data.items) yield put({ type: 'artifacts/fetchArtifactsSuccess', payload: realState.data.items });
           break;
         case 'dag':
-          if (mockState.data.nodes) {
-             yield put({ type: 'dag/setNodes', payload: mockState.data.nodes });
-          }
-          if (mockState.data.edges) {
-             yield put({ type: 'dag/setEdges', payload: mockState.data.edges });
-          }
+          if (realState.data.nodes) yield put({ type: 'dag/setNodes', payload: realState.data.nodes });
+          if (realState.data.edges) yield put({ type: 'dag/setEdges', payload: realState.data.edges });
           break;
-        case 'agent_events':
-          if (mockState.data.events) {
-            yield put({ type: 'dag/clearIntrospectionEvents' });
-            for (const evt of mockState.data.events) {
-              yield put({ type: 'dag/addIntrospectionEvent', payload: evt });
-            }
-          }
-          break;
+        // Keep the rest of realState handlers as needed...
         default:
-          console.warn(`[Sequencer] Unknown slice '${mockState.slice}' for mock data injection`);
+          yield put({ type: `${realState.slice}/updateFromSequencer`, payload: realState.data });
       }
-    } else {
-      console.warn(`[Sequencer] No valid mock data found for widget '${widget}'`);
     }
+  } catch (err: unknown) {
+    console.error(`[Sequencer] Error executing step:`, err);
+  }
+}
+
+function* handleVisionCapture(action: any): Generator<any, void, any> {
+  const { url, onSuccess, onError } = action.payload;
+  try {
+    const HTTP_URL = getCodernicHttpUrl();
+    const response = yield call(fetch, `${HTTP_URL}/api/vision/capture`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = yield call([response, response.json]);
+    if (onSuccess) onSuccess(data);
+  } catch (e: unknown) {
+    if (onError) onError(e instanceof Error ? e.message : String(e));
+  }
+}
+
+function* handleVramBenchmark(action: any): Generator<any, void, any> {
+  const { onSuccess, onError } = action.payload;
+  try {
+    const HTTP_URL = getCodernicHttpUrl();
+    const response = yield call(fetch, `${HTTP_URL}/api/benchmark/vram`, { method: 'POST' });
+    const data = yield call([response, response.json]);
+    if (onSuccess) onSuccess(data);
+  } catch (e: unknown) {
+    if (onError) onError(e instanceof Error ? e.message : String(e));
+  }
+}
+
+function* pollMetrics(): Generator {
+  while (true) {
+    try {
+      const HTTP_URL = getCodernicHttpUrl();
+      const response = yield call(fetch, `${HTTP_URL}/api/v1/metrics/inference`);
+      if ((response as Response).ok) {
+        const data = yield call([response as Response, (response as Response).json]);
+        yield put({ type: 'system/setMetrics', payload: data });
+      } else if ((response as Response).status === 404) {
+        console.debug('Metrics endpoint not mounted. Halting polling to prevent 404 spam.');
+        break;
+      }
+    } catch (e) {
+      console.debug('Metrics endpoint not ready:', e);
+    }
+    yield delay(5000);
+  }
 }
 
 export function* systemSaga(): Generator {
@@ -271,8 +250,11 @@ export function* systemSaga(): Generator {
   yield all([
     fork(watchIncoming, channel),
     fork(watchOutgoing),
+    fork(pollMetrics),
     takeEvery((action: SystemWsAction) => action.type.startsWith('WS/'), handleSystemEvents),
     takeEvery(setSandboxMode.type, handleSandboxToggle),
-    takeEvery('sequencer/executeStep', handleSequencerStep)
+    takeEvery('sequencer/executeStep', handleSequencerStep),
+    takeEvery('system/visionCaptureRequest', handleVisionCapture),
+    takeEvery('system/vramBenchmarkRequest', handleVramBenchmark)
   ]);
 }

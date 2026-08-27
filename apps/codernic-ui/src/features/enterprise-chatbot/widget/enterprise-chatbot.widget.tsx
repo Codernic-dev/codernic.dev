@@ -1,10 +1,15 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { MessageFeed } from '../../../features/chat/components/organisms/message-feed';
 import { ChatInput } from '../../../features/chat/components/organisms/chat-input';
 import { EnterpriseChatbotHero } from '../../../features/chat/components/organisms/EnterpriseChatbotHero';
 import { selectEnterpriseMessages, selectEnterpriseSending, submitEnterpriseMessage } from '../store/enterprise-chatbot.slice';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 /**
  * EnterpriseChatbotWidget

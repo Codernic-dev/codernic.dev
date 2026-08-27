@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { SessionSelector } from '../../../features/sessions/components/molecules/session-selector';
 import { sendIntent } from '../../../shared/store/intent';
 import type { RootState } from '../../../store';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function SessionWidget({ dataTestId, id }: { id?: string; dataTestId?: string; }) {
   

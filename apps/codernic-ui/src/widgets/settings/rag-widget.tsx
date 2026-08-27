@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IconDatabase, IconPlus, IconSettings } from '@ai-agencee/ui';
-import { Button } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { IconDatabase, IconPlus, IconSettings } from '@codernic/components';
+import { Button } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 export function RagWidget() {
   

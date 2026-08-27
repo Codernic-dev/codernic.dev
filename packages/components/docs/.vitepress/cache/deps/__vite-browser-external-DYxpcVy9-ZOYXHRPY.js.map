@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../node_modules/.pnpm/@binaryjack+formular.dev@2.3.9/node_modules/@binaryjack/formular.dev/__vite-browser-external"],
+  "sourcesContent": ["export default {}"],
+  "mappings": ";;;AAAA,IAAAA,IAAe,CAAA;",
+  "names": ["__viteBrowserExternal"]
+}

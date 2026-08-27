@@ -1,21 +1,27 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectNodeIds, selectNodesMap } from '../../../features/dag/store/dag.slice';
+import { selectNodeIds, selectNodesMap, selectErathosSchema } from '../../../features/dag/store/dag.slice';
 import { selectCurrentSessionId } from '../../../features/sessions/store/sessions.slice';
 import { DagNodeCard } from './dag-node-card';
 import { ErathosCanvas } from './ErathosCanvas';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function DagPipeline() {
   
-  const { rootId, getTestId } = useTestId('dag-pipeline', typeof dataTestId !== 'undefined' ? dataTestId : undefined);
-const [activeTab, setActiveTab] = useState<'canvas' | 'list'>('canvas');
+  const { rootId, getTestId } = useTestId('dag-pipeline');
+  const [activeTab, setActiveTab] = useState<'canvas' | 'list'>('canvas');
   const nodeIds = useSelector(selectNodeIds);
   const nodesMap = useSelector(selectNodesMap);
   const currentSessionId = useSelector(selectCurrentSessionId);
+  const erathosSchema = useSelector(selectErathosSchema);
   const nodes = Object.values(nodesMap);
 
-  if (nodeIds.length === 0) return null;
+  if (nodeIds.length === 0 && !erathosSchema) return null;
 
   // Simple heuristic for topological sorting based on creation order and dependencies
   const renderTreeNodes = (parentId: string | null, level: number): React.ReactNode[] => {
@@ -88,9 +94,20 @@ const [activeTab, setActiveTab] = useState<'canvas' | 'list'>('canvas');
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: activeTab === 'canvas' ? '400px' : 'auto' }}>
         {activeTab === 'canvas' ? (
-          <ErathosCanvas data-testid={getTestId('erathos-canvas')} key={currentSessionId || 'default'} allowMouseZoom={true} hideHeader={true} readOnly={false} appearance="codernic-background" allowMultipleSchemas={true} disableLocalStorage={false} fitToScreen={true} />
+          <ErathosCanvas 
+            data-testid={getTestId('erathos-canvas')} 
+            key={currentSessionId || 'default'} 
+            enableScrollZoom={false} 
+            hideHeader={true} 
+            readOnly={true} 
+            appearance="codernic-background" 
+            allowMultipleSchemas={false} 
+            disableLocalStorage={true} 
+            fitToScreen={true} 
+            initialState={erathosSchema} 
+          />
         ) : (
           renderTreeNodes(null, 0)
         )}

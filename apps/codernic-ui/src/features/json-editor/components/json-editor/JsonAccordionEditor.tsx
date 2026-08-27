@@ -1,8 +1,13 @@
-import { Button } from '@ai-agencee/ui';
-import { IconSave, IconLoader } from '@ai-agencee/ui';
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
+import { Button } from '@codernic/components';
+import { IconSave, IconLoader } from '@codernic/components';
 import { JsonObjectEditor } from './JsonObjectEditor';
 import type { JsonEditorSchema } from './types';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface JsonAccordionEditorProps {
   value: object;

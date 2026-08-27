@@ -1,7 +1,7 @@
 {
   "name": "codernic-ui",
   "private": true,
-  "version": "0.6.479",
+  "version": "0.6.482",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,27 +11,35 @@
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
-    "@ai-agencee/ui": "workspace:*",
-    "@atomos-web/structura": "^2.3.7",
-    "@atomos-web/structura-core": "^2.3.7",
+    "@codernic/components": "workspace:*",
+    "@codernic/styleguide": "workspace:*",
+    "@atomos-web/structura": "^2.3.18",
+    "@atomos-web/structura-core": "^2.3.10",
     "@binaryjack/formular.dev": "^2.3.2",
     "@binaryjack/state-factories": "workspace:*",
     "@monaco-editor/react": "^4.7.0",
     "@reduxjs/toolkit": "^2.12.0",
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-opener": "^2.5.4",
+    "lucide-react": "^1.16.0",
     "mermaid": "^11.15.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.3.0",
     "redux-saga": "^1.5.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
+    "@tauri-apps/cli": "^2.11.4",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

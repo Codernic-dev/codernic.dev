@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { all, fork } from 'redux-saga/effects';
@@ -18,6 +23,17 @@ import uiCommandsReducer from '../features/layout-engine/store/ui-commands.slice
 import { uiCommandsSaga } from '../features/layout-engine/store/ui-commands.saga';
 import enterpriseChatbotReducer from '../features/enterprise-chatbot/store/enterprise-chatbot.slice';
 import { enterpriseChatbotSaga } from '../features/enterprise-chatbot/store/enterprise-chatbot.saga';
+import authReducer from '../features/auth/store/auth.slice';
+import { authSaga } from '../features/auth/store/auth.saga';
+import { loraSaga } from '../features/lora-trainer/store/lora.saga';
+import { layoutSaga } from '../features/layout-engine/store/layout.saga';
+import rosterReducer from '../features/roster/store/roster.slice';
+import { watchRosterSaga } from '../features/roster/store/roster.saga';
+import swgReducer from '../features/swg-control/model/swg-slice';
+import { swgSaga } from '../features/swg-control/model/swg-saga';
+import sandboxReducer from '../features/sandbox/model/sandbox-slice';
+import { sandboxSaga } from '../features/sandbox/model/sandbox-saga';
+import { watchTauriIpcSaga } from '../features/system/store/tauri.saga';
 
 // Entities
 import { rootTelemetrySaga } from '../entities/kernel/model/telemetry-saga';
@@ -46,7 +62,14 @@ function* rootSaga() {
     fork(rootAssetsSaga),
     fork(rootArtifactsSaga),
     fork(watchNotificationsSaga),
-    fork(enterpriseChatbotSaga)
+    fork(enterpriseChatbotSaga),
+    fork(authSaga),
+    fork(loraSaga),
+    fork(layoutSaga),
+    fork(watchRosterSaga),
+    fork(swgSaga),
+    fork(sandboxSaga),
+    fork(watchTauriIpcSaga)
   ]);
 }
 
@@ -68,12 +91,20 @@ export const store = configureStore({
     artifacts: artifactsReducer,
     notifications: notificationsReducer,
     enterpriseChatbot: enterpriseChatbotReducer,
+    auth: authReducer,
+    roster: rosterReducer,
+    swg: swgReducer,
+    sandbox: sandboxReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(demoMiddleware, sagaMiddleware),
 });
 
 sagaMiddleware.run(rootSaga);
+
+if (typeof window !== 'undefined') {
+  (window as any).store = store;
+}
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

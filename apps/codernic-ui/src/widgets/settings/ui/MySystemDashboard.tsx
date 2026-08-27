@@ -1,11 +1,16 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectLocalModels } from '../../../features/models/store/models.slice';
 import { sendIntent } from '../../../shared/store/intent';
 import { selectHardwareMetrics, selectBackendBridges } from '../../../entities/telemetry/model/telemetry-slice';
 import { vscode } from '../../../shared/api/vscode-api';
-import { IconTrash, IconDatabase } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { IconTrash, IconDatabase } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 // This interface matches CoreHealthPayload from the Rust protocol
 interface CoreHealthPayload {
@@ -20,7 +25,11 @@ interface CoreHealthPayload {
   has_metal: boolean;
 }
 
-export const MySystemDashboard: React.FC = () => {
+export interface MySystemDashboardProps {
+  className?: string;
+}
+
+export const MySystemDashboard = ({ className = '' }: MySystemDashboardProps): JSX.Element => {
   
   const { rootId, getTestId } = useTestId('my-system-dashboard', undefined);
   const dispatch = useDispatch();

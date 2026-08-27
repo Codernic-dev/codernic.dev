@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useEffect } from 'react';
-import { Heading, Text, Button } from '@ai-agencee/ui';
+import { Heading, Text, Button } from '@codernic/components';
 import { vscode } from '../../../../../shared';
-import { getCodernicHttpUrl } from '../../../../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
+import { useDispatch } from 'react-redux';
 
 interface TrainRequest {
   backend: string;
@@ -17,12 +22,13 @@ interface TrainRequest {
 export function LoraTrainerWidget() {
   
   const { rootId, getTestId } = useTestId('lora-trainer-widget', typeof dataTestId !== 'undefined' ? dataTestId : undefined);
-const [form, setForm] = useState<TrainRequest>({
+  const dispatch = useDispatch();
+  const [form, setForm] = useState<TrainRequest>({
     backend: 'rocm',
     family: 'qwen2',
-    dataset_path: '~/.codernic/datasets/training_traces.jsonl',
-    base_model_path: '~/.codernic/models/base',
-    output_path: '~/.codernic/agents/LoRA/stress_backend_dev.safetensors',
+    dataset_path: '',
+    base_model_path: '',
+    output_path: '',
     rank: 8,
     alpha: 16.0,
   });
@@ -56,30 +62,21 @@ const [form, setForm] = useState<TrainRequest>({
     }));
   };
 
-  const handleTrain = async () => {
+  const handleTrain = () => {
     setStatus('running');
     setLogs(['Submitting training request to Daemon...']);
     
-    try {
-      const HTTP_URL = getCodernicHttpUrl();
-          
-      const response = await fetch(`${HTTP_URL}/api/lora/train`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await response.json();
-      
-      if (!data.success) {
-        setStatus('error');
-        setLogs(prev => [...prev, `Failed to submit: ${data.message}`]);
-      } else {
-        setLogs(prev => [...prev, data.message]);
+    dispatch({
+      type: 'lora/trainRequest',
+      payload: {
+        form,
+        onSuccess: (msg: string) => setLogs(prev => [...prev, msg]),
+        onError: (err: string) => {
+          setStatus('error');
+          setLogs(prev => [...prev, `Failed to submit: ${err}`]);
+        }
       }
-    } catch (e: unknown) {
-      setStatus('error');
-      setLogs(prev => [...prev, `Network error: ${(e instanceof Error ? e.message : String(e))}`]);
-    }
+    });
   };
 
   return (

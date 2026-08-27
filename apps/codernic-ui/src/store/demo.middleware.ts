@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { Middleware } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
@@ -17,8 +22,8 @@ export const demoMiddleware: Middleware<{}, RootState> = store => next => action
       switch (type) {
         case 'codernic:get-sessions':
           store.dispatch({
-            type: 'chat/setSessions',
-            payload: [{ id: 'demo-session', name: 'Sandbox Session', messages: [], mode: 'brainstorm' }]
+            type: 'WS/codernic:sessions-list',
+            payload: [{ id: 'demo-session', name: 'Sandbox Session', status: 'idle' }]
           });
           return; // Stop propagation
           

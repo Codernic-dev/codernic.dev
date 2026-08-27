@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { CodernicContextFile } from '../../../entities/kernel/model/types';
 import { ContextBadge } from './context-badge';
 
@@ -35,11 +40,11 @@ export function ContextBadgeList({
         alignItems: 'center',
       }}
     >
-      {files.map((file) => (
+      {files.map((file, index) => (
         <ContextBadge
-          data-testid={`context-badge-${file.id}`}
-          key={file.id}
-          id={file.id}
+          data-testid={`context-badge-${file.id || index}`}
+          key={file.id || `context-badge-${index}`}
+          id={file.id || `fallback-id-${index}`}
           filePath={file.filePath}
           fileName={file.fileName}
           lines={file.lines}

@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { selectActiveIntrospectionSession } from "../../../entities/introspection/model/introspection-slice";
 import { useSelector } from 'react-redux';
 import { selectCurrentSessionName } from '../../../features/sessions/store/sessions.slice';
-import { IconZap, IconDot, IconTool, IconThought, IconRepeat, IconCircle, useHubEvent } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
-import { WidgetHub } from '@ai-agencee/ui';
+import { IconZap, IconDot, IconTool, IconThought, IconRepeat, IconCircle, useHubEvent } from '@codernic/components';
+import { useTestId } from '@codernic/components';
+import { WidgetHub } from '@codernic/components';
 import { useState } from 'react';
 
 export function ConfidenceSlider({ dataTestId, score }: { dataTestId?: string, score: number | null }) {

@@ -1,8 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useEffect, useCallback } from 'react';
-import type { BlockState } from '@ai-agencee/ui/layout-engine';
+import type { BlockState } from '@codernic/components/layout-engine';
 import { DEFAULT_LAYOUTS } from '../model/default-layouts';
-import { getCodernicHttpUrl } from '../../../shared/config';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectSandboxMode } from '../../../entities/app/model/app-slice';
 
 export function useLayoutDataSync() {
@@ -13,7 +17,7 @@ export function useLayoutDataSync() {
 
   const [savedLayouts, setSavedLayouts] = useState<Record<string, Record<string, BlockState>>>(DEFAULT_LAYOUTS);
   const [activeLayoutName, setActiveLayoutName] = useState<string | null>(getInitialLayout);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
 
   // Sync URL when active layout changes
   useEffect(() => {
@@ -37,31 +41,25 @@ export function useLayoutDataSync() {
 
   const sandboxMode = useSelector(selectSandboxMode);
 
+  const reduxDispatch = useDispatch();
+
   // Fetch layouts from API
   useEffect(() => {
     if (sandboxMode) {
       setIsLoaded(true);
       return;
     }
-    const fetchLayouts = async () => {
-      try {
-        const baseUrl = getCodernicHttpUrl();
-        const res = await fetch(`${baseUrl}/api/layouts?t=${Date.now()}`, {
-          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-        });
-        if (res.ok) {
-          const layouts = await res.json();
+    reduxDispatch({ 
+      type: 'layout/fetchLayoutsRequest',
+      payload: {
+        onSuccess: (layouts: any) => {
           setSavedLayouts((prev) => ({ ...prev, ...layouts }));
-        }
-      } catch (e) {
-        // Suppress warning if backend is unreachable and we expect it to be
-        console.warn('Failed to load layouts from API:', e);
-      } finally {
-        setIsLoaded(true);
+          setIsLoaded(true);
+        },
+        onError: () => setIsLoaded(true)
       }
-    };
-    fetchLayouts();
-  }, [sandboxMode]);
+    });
+  }, [sandboxMode, reduxDispatch]);
 
   const handleSelectLayout = useCallback((layoutName: string, forceDefault: boolean = false) => {
     const url = new URL(window.location.href);

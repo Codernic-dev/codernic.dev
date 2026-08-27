@@ -1,15 +1,20 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useRef, useEffect, memo } from 'react';
 import { Accordion } from '../../../shared/ui/accordion';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendIntent } from '../../../shared/store/intent';
 import { selectSessions, selectCurrentSessionId, renameSession, removeSession } from '../../../features/sessions/store/sessions.slice';
 import { selectAgents, selectDags, selectTechs } from '../../../entities/assets/model/assets-slice';
-import { ConfirmModal } from '@ai-agencee/ui';
-import { Button } from '@ai-agencee/ui';
+import { ConfirmModal } from '@codernic/components';
+import { Button } from '@codernic/components';
 import {
   IconAgent, IconDag, IconTech, IconPlus, IconBot, IconSettings
-} from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+} from '@codernic/components';
+import { useTestId } from '@codernic/components';
 import { AssetList } from './AssetList';
 import { SessionsList } from './SessionsList';
 

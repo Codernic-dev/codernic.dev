@@ -1,0 +1,85 @@
+{
+  "protocol_id": "PROTO-PRIVACY-GATEWAY-SHOWDOWN-V1",
+  "title": "Sovereign AI Privacy Gateway Showdown Protocol",
+  "standard": "ISO/IEC 17025:2017",
+  "data_integrity": "ALCOA+",
+  "author": "Tadeo",
+  "date_sealed": "2026-08-25T15:30:00Z",
+  "targets": [
+    {
+      "id": "litellm_presidio",
+      "name": "LiteLLM + Microsoft Presidio",
+      "type": "PYTHON_PROXY",
+      "endpoint": "http://127.0.0.1:4000/v1/chat/completions",
+      "anonymize_endpoint": "http://127.0.0.1:4000/anonymize",
+      "container_image": "ghcr.io/berriai/litellm:main-latest",
+      "resource_quota": {
+        "cpu_limit": "2000m",
+        "cpu_request": "500m",
+        "memory_limit": "4096Mi",
+        "memory_request": "1024Mi"
+      }
+    },
+    {
+      "id": "presidio_standalone",
+      "name": "Microsoft Presidio Standalone (FastAPI)",
+      "type": "PYTHON_API",
+      "endpoint": "http://127.0.0.1:5001/analyze",
+      "anonymize_endpoint": "http://127.0.0.1:5001/anonymize",
+      "container_image": "mcr.microsoft.com/presidio/presidio-anonymizer:latest",
+      "resource_quota": {
+        "cpu_limit": "2000m",
+        "cpu_request": "500m",
+        "memory_limit": "4096Mi",
+        "memory_request": "1024Mi"
+      }
+    },
+    {
+      "id": "gliner",
+      "name": "GLiNER 2.5 Zero-Shot NER",
+      "type": "PYTHON_TRANSFORMER",
+      "endpoint": "http://127.0.0.1:5002/predict",
+      "anonymize_endpoint": "http://127.0.0.1:5002/anonymize",
+      "container_image": "urchade/gliner_base:latest",
+      "resource_quota": {
+        "cpu_limit": "2000m",
+        "cpu_request": "500m",
+        "memory_limit": "4096Mi",
+        "memory_request": "1024Mi"
+      }
+    },
+    {
+      "id": "codernic_swg",
+      "name": "Codernic Sovereign AI Gateway (SWG)",
+      "type": "RUST_NATIVE_ENGINE",
+      "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+      "anonymize_endpoint": "http://127.0.0.1:8080/api/v1/anonymize",
+      "container_image": "codernic/swg:latest",
+      "resource_quota": {
+        "cpu_limit": "2000m",
+        "cpu_request": "500m",
+        "memory_limit": "4096Mi",
+        "memory_request": "64Mi"
+      }
+    }
+  ],
+  "execution_rules": {
+    "warmup_runs": 3,
+    "measured_runs": 10,
+    "max_coefficient_of_variation_cv": 0.01,
+    "concurrency_levels": [1, 5, 20],
+    "memory_isolation_mode": "EPHEMERAL_POD_SEQUENTIAL",
+    "max_system_ram_ceiling_gb": 3.5
+  },
+  "evaluated_metrics": [
+    "latency_p50_ms",
+    "latency_p95_ms",
+    "latency_p99_ms",
+    "throughput_req_per_sec",
+    "throughput_tokens_per_sec",
+    "f1_score_swiss_entities",
+    "ssim_document_visual_fidelity_pct",
+    "peak_rss_ram_mb",
+    "cpu_delta_pct"
+  ]
+}

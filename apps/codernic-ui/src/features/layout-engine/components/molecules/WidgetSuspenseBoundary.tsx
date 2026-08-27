@@ -1,7 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { Suspense } from 'react';
-import type { BlockState } from '@ai-agencee/ui/layout-engine';
+import type { BlockState } from '@codernic/components/layout-engine';
 import { WIDGET_REGISTRY } from '../../model/widget-registry';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 interface WidgetSuspenseBoundaryProps {
   block: BlockState;

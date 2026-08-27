@@ -1,25 +1,28 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useEffect, useState, useCallback } from 'react';
 import { getCodernicHttpUrl } from '../config';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectSandboxMode } from '../../entities/app/model/app-slice';
 
 export function useShortcutsManager(onLayoutChange: (layoutName: string) => void) {
   const [shortcuts, setShortcuts] = useState<Record<string, string>>({});
   const sandboxMode = useSelector(selectSandboxMode);
 
-  const fetchShortcuts = useCallback(async () => {
+  const dispatch = useDispatch();
+
+  const fetchShortcuts = useCallback(() => {
     if (sandboxMode) return;
-    try {
-      const baseUrl = getCodernicHttpUrl();
-      const res = await fetch(`${baseUrl}/api/shortcuts?t=${Date.now()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setShortcuts(data);
+    dispatch({
+      type: 'layout/fetchShortcutsRequest',
+      payload: {
+        onSuccess: (data: Record<string, string>) => setShortcuts(data)
       }
-    } catch (e) {
-      console.warn('Failed to load shortcuts from API', e);
-    }
-  }, [sandboxMode]);
+    });
+  }, [sandboxMode, dispatch]);
 
   useEffect(() => {
     fetchShortcuts();

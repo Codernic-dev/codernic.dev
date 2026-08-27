@@ -2,6 +2,13 @@
 node_modules/
 **/dist/
 target/
+**/src-tauri/target/
+**/src-tauri/binaries/
+**/src-tauri/gen/
+**/src-tauri/models/
+**/src-tauri/sessions/
+**/src-tauri/logs/
+**/src-tauri/.codernic/
 coverage/
 *.tsbuildinfo
 test-results/
@@ -44,7 +51,6 @@ models/
 Thumbs.db
 
 # Codernic Configuration Architecture
-# On versionne tout par défaut, SAUF les données locales/privées :
 .codernic/sessions/
 .codernic/artifacts/
 .codernic/analysis_sandbox/
@@ -61,6 +67,3 @@ Thumbs.db
 .env
 .env.*
 !.env.example
-
-# Playwright Demo Videos
-private_docs/videos/

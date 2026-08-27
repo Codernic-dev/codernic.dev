@@ -1,15 +1,22 @@
-import type { CodernicMode } from '../../../../../codernic-ext/src/features/codernic/model/codernic-mode.types';
-import { IconThought, IconFileText, IconZap, IconLayers, IconActivity } from '@ai-agencee/ui';
-import { Dropdown } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
 
-const MODE_ICONS: Record<CodernicMode, React.FC<any>> = {
-  brainstorm: IconThought,
-  plan: IconFileText,
-  builder: IconZap,
-  journey: IconLayers,
-  analyse: IconActivity,
-  agent: IconThought,
+import type { CodernicMode } from '../../../../../codernic-ext/src/features/codernic/model/codernic-mode.types';
+import { IconThought, IconFileText, IconZap, IconLayers, IconActivity } from '@codernic/components';
+import { Dropdown } from '@codernic/components';
+import { useTestId } from '@codernic/components';
+
+type IconComponent = (props: { size?: number; className?: string; 'data-testid'?: string }) => JSX.Element;
+
+const MODE_ICONS: Record<CodernicMode, IconComponent> = {
+  brainstorm: IconThought as unknown as IconComponent,
+  plan: IconFileText as unknown as IconComponent,
+  builder: IconZap as unknown as IconComponent,
+  journey: IconLayers as unknown as IconComponent,
+  analyse: IconActivity as unknown as IconComponent,
+  agent: IconThought as unknown as IconComponent,
 };
 
 interface ModeDropdownProps {

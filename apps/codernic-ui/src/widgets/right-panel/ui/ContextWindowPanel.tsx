@@ -1,9 +1,14 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useSelector } from 'react-redux';
 import { selectContextStats } from '../../../features/system/store/system.slice';
 import { selectContextFiles } from '../../../features/chat/store/chat.slice';
 import { selectMetrics } from '../../../features/system/store/system.slice';
-import { IconLayers, IconFileText, IconCoins, IconZap, IconActivity } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { IconLayers, IconFileText, IconCoins, IconZap, IconActivity } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 /* ── Shared row ── */
 function DataRow({ label, value, valueColor }: { label: string; value: React.ReactNode; valueColor?: string }) {

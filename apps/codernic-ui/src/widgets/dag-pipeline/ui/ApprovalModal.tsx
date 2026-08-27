@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { resolveApproval, selectApprovalRequest } from '../../../features/dag/store/dag.slice';

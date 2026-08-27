@@ -1,8 +1,0 @@
-version: '3.8'
-
-services:
-  wiki:
-    build: .
-    restart: always
-    ports:
-      - "7070:80"

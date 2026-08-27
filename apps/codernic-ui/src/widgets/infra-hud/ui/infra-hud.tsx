@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { ContextStats, InfraStats } from '../../../entities/kernel/model/types';
 import type { InferenceMetrics } from '../../../entities/kernel/model/types';
 
@@ -7,22 +12,7 @@ interface InfraHudProps {
   metrics?: InferenceMetrics | null;
 }
 
-import { useEffect } from 'react';
-
 export function InfraHud({ infra, context, metrics }: InfraHudProps) {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch('http://localhost:11434/metrics')
-        .then(res => res.json())
-        .then(data => {
-          // Normally we'd dispatch this to redux, but for now we just poll silently
-          console.log('Polled metrics:', data);
-        })
-        .catch(err => console.debug('Metrics endpoint not ready:', err));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   if (!infra && !context && !metrics) return null;
 
   const vramPercent = infra ? (infra.vram_used / infra.vram_total) * 100 : 0;
@@ -48,11 +38,20 @@ export function InfraHud({ infra, context, metrics }: InfraHudProps) {
         userSelect: 'none',
       }}
     >
+      {/* SYSTEM HEADER */}
+      {infra?.daemon_version && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2px', color: '#52525b', fontSize: '8px', letterSpacing: '0.1em', fontWeight: 700 }}>
+          DEMING ENGINE v{infra.daemon_version}
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
         {/* VRAM SECTION */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: '#a1a1aa', fontWeight: 600 }}>
-            <span style={{ fontSize: '9px', letterSpacing: '0.05em' }}>🧠 GPU VRAM</span>
+            <span style={{ fontSize: '9px', letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }} title={infra?.hardware_type || 'GPU VRAM'}>
+              🧠 {infra?.hardware_type || 'GPU'} VRAM
+            </span>
             <span style={{ color: isVramHigh ? '#ef4444' : '#e4e4e7', fontFamily: 'var(--mono)' }}>
               {infra ? `${infra.vram_used.toFixed(1)} / ${infra.vram_total.toFixed(1)} GB` : 'N/A'}
             </span>

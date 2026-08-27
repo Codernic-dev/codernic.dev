@@ -1,7 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { SearchInput } from '@ai-agencee/ui';
-import { useTestId } from '@ai-agencee/ui';
+import { SearchInput } from '@codernic/components';
+import { useTestId } from '@codernic/components';
 
 interface WidgetSearchInputProps {
   widgetId?: string;

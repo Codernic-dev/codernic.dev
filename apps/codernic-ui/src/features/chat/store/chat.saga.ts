@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { all, put, select, takeEvery, call } from 'redux-saga/effects';
 import { createAction } from '@reduxjs/toolkit';
 import type { ChatMsg, ThinkingState, ToolCall, DiagnosticInfo } from '../../../entities/kernel/model/types';
@@ -230,7 +235,10 @@ function* handleChatEvents(action: WsAction) {
 
       const introId = `intro-${payload.sessionId || currentSessionId || 'default'}`;
       yield put(setPendingAssistantId(null));
-      yield put(setSending(false));
+      const sending = (yield select((state: RootState) => state.chat.sending)) as boolean;
+      if (sending) {
+        yield put(setSending(false));
+      }
       yield put(setThinking({ sessionId: payload.sessionId || currentSessionId || '', state: { phase: 'idle' } }));
 
       yield put(setRemoteTaskId({ sessionId: payload.sessionId || currentSessionId || '', taskId: null }));
@@ -381,7 +389,9 @@ function* handleChatEvents(action: WsAction) {
       );
     }
     yield put(setPendingAssistantId(null));
-    yield put(setSending(false));
+    if (sending) {
+      yield put(setSending(false));
+    }
     yield put(setThinking({ sessionId: payload.sessionId || currentSessionId || '', state: { phase: 'idle' } }));
     yield put(setRemoteTaskId({ sessionId: payload.sessionId || currentSessionId || '', taskId: null }));
   } else if (type === 'WS/codernic:chat-done' || type === 'WS/ac:chat-done') {
@@ -390,7 +400,10 @@ function* handleChatEvents(action: WsAction) {
       yield put(updateAssistantMessage({ id: pendingId, done: true }));
       yield put(setPendingAssistantId(null));
     }
-    yield put(setSending(false));
+    const isSending = (yield select((state: RootState) => state.chat.sending)) as boolean;
+    if (isSending) {
+      yield put(setSending(false));
+    }
     yield put(setThinking({ sessionId: payload.sessionId || currentSessionId || '', state: { phase: 'idle' } }));
     yield put(setRemoteTaskId({ sessionId: payload.sessionId || currentSessionId || '', taskId: null }));
   } else if (type === 'WS/ac:inference-metrics') {
@@ -433,7 +446,10 @@ function* handleChatEvents(action: WsAction) {
       }));
       yield put(sendIntent({ type: 'codernic:telemetry-log', payload: { type: 'hallucination', rawPayload: payload, validationError: errorMsg } }));
     }
-    yield put(setSending(false));
+    const isSending = (yield select((state: RootState) => state.chat.sending)) as boolean;
+    if (isSending) {
+      yield put(setSending(false));
+    }
     yield put(setThinking({ sessionId: payload.sessionId || currentSessionId || '', state: { phase: 'idle' } }));
   }
 }

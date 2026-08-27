@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { SessionMeta } from '../../../entities/kernel/model/types';
@@ -24,6 +29,13 @@ export const sessionsSlice = createSlice({
         }
       }
       state.sessions = newSessions;
+    },
+    addSession(state, action: PayloadAction<SessionMeta>) {
+      console.log('addSession called with payload:', action.payload);
+      if (!state.sessions) {
+        state.sessions = {};
+      }
+      state.sessions[action.payload.id] = action.payload;
     },
     renameSession(state, action: PayloadAction<{ id: string; newName: string }>) {
       const { id, newName } = action.payload;
@@ -76,6 +88,7 @@ export const sessionsSlice = createSlice({
 
 export const {
   setSessions,
+  addSession,
   renameSession,
   updateSessionStatus,
   setCurrentSessionId,

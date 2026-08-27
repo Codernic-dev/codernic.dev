@@ -1,7 +1,4 @@
-// Codernic UI Environment Configuration
-// This centralized configuration reads values injected by the VS Code extension
-// into the `window.__CODERNIC_ENV__` object, or falls back to import.meta.env
-// if running in a standalone Vite dev server.
+import type { EngineConfigPayload } from './api/tauri-ipc';
 
 declare global {
   interface Window {
@@ -14,35 +11,63 @@ declare global {
   }
 }
 
+interface ImportMetaEnv {
+  VITE_CODERNIC_WS_URL?: string;
+  VITE_DAEMON_HTTP_URL?: string;
+  VITE_ERATHOS_MCP_URL?: string;
+  VITE_OLLAMA_URL?: string;
+}
+
+let activeEngineConfig: EngineConfigPayload | null = null;
+
+export const setRuntimeEngineConfig = (config: EngineConfigPayload): void => {
+  activeEngineConfig = config;
+};
+
+export const getRuntimeEngineConfig = (): EngineConfigPayload | null => {
+  return activeEngineConfig;
+};
+
 export const getCodernicWsUrl = (): string => {
-  const url = window.__CODERNIC_ENV__?.VITE_CODERNIC_WS_URL || (import.meta as any).env?.VITE_CODERNIC_WS_URL;
-  if (!url) {
-    throw new Error('CRITICAL ERROR: VITE_CODERNIC_WS_URL is not defined in environment. Check your engine.json network config.');
+  if (activeEngineConfig?.network?.daemon_ws_port) {
+    const host = activeEngineConfig.network.bind_host || '127.0.0.1';
+    return `ws://${host}:${activeEngineConfig.network.daemon_ws_port}/ws`;
   }
-  return url;
+  const winEnv = typeof window !== 'undefined' ? window.__CODERNIC_ENV__ : undefined;
+  const metaEnv = (import.meta as unknown as { env?: ImportMetaEnv })?.env;
+  return winEnv?.VITE_CODERNIC_WS_URL || metaEnv?.VITE_CODERNIC_WS_URL || 'ws://127.0.0.1:47321/ws';
 };
 
 export const getCodernicHttpUrl = (): string => {
-  const url = window.__CODERNIC_ENV__?.VITE_DAEMON_HTTP_URL || (import.meta as any).env?.VITE_DAEMON_HTTP_URL;
-  if (!url) {
-    throw new Error('CRITICAL ERROR: VITE_DAEMON_HTTP_URL is not defined in environment. Check your engine.json network config.');
+  if (activeEngineConfig?.network?.daemon_ws_port) {
+    const host = activeEngineConfig.network.bind_host || '127.0.0.1';
+    return `http://${host}:${activeEngineConfig.network.daemon_ws_port}`;
   }
-  return url;
+  const winEnv = typeof window !== 'undefined' ? window.__CODERNIC_ENV__ : undefined;
+  const metaEnv = (import.meta as unknown as { env?: ImportMetaEnv })?.env;
+  return winEnv?.VITE_DAEMON_HTTP_URL || metaEnv?.VITE_DAEMON_HTTP_URL || 'http://127.0.0.1:47321';
 };
 
 export const getErathosMcpUrl = (): string => {
-  const url = window.__CODERNIC_ENV__?.VITE_ERATHOS_MCP_URL || (import.meta as any).env?.VITE_ERATHOS_MCP_URL;
-  if (!url) {
-    throw new Error('CRITICAL ERROR: VITE_ERATHOS_MCP_URL is not defined in environment. Check your engine.json network config.');
+  if (activeEngineConfig?.network?.mcp_bridge_port) {
+    const host = activeEngineConfig.network.bind_host || '127.0.0.1';
+    return `http://${host}:${activeEngineConfig.network.mcp_bridge_port}`;
   }
-  return url;
+  const winEnv = typeof window !== 'undefined' ? window.__CODERNIC_ENV__ : undefined;
+  const metaEnv = (import.meta as unknown as { env?: ImportMetaEnv })?.env;
+  return winEnv?.VITE_ERATHOS_MCP_URL || metaEnv?.VITE_ERATHOS_MCP_URL || 'http://127.0.0.1:47322';
+};
+
+export const getSwgUrl = (): string => {
+  if (activeEngineConfig?.network?.swg_port) {
+    const host = activeEngineConfig.network.bind_host || '127.0.0.1';
+    return `http://${host}:${activeEngineConfig.network.swg_port}`;
+  }
+  return 'http://127.0.0.1:9090';
 };
 
 export const getOllamaUrl = (): string => {
-  const url = window.__CODERNIC_ENV__?.VITE_OLLAMA_URL || (import.meta as any).env?.VITE_OLLAMA_URL;
-  if (!url) {
-    // We provide a fallback for Ollama to avoid breaking existing users who didn't set it
-    return 'http://127.0.0.1:11434';
-  }
-  return url;
+  const winEnv = typeof window !== 'undefined' ? window.__CODERNIC_ENV__ : undefined;
+  const metaEnv = (import.meta as unknown as { env?: ImportMetaEnv })?.env;
+  return winEnv?.VITE_OLLAMA_URL || metaEnv?.VITE_OLLAMA_URL || 'http://127.0.0.1:11434';
 };

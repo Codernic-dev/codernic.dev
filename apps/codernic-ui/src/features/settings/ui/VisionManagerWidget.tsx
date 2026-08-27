@@ -1,7 +1,12 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState } from 'react';
-import { Button, Heading, Text } from '@ai-agencee/ui';
-import { getCodernicHttpUrl } from '../../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { Button, Heading, Text } from '@codernic/components';
+import { useTestId } from '@codernic/components';
+import { useDispatch } from 'react-redux';
 
 export function VisionManagerWidget({ dataTestId }: { dataTestId?: string } = {}) {
   const { getTestId } = useTestId('vision-manager-widget');
@@ -10,27 +15,26 @@ export function VisionManagerWidget({ dataTestId }: { dataTestId?: string } = {}
   const [url, setUrl] = useState('https://news.ycombinator.com/');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; base64?: string; error?: string } | null>(null);
+  const dispatch = useDispatch();
 
-  const handleCapture = async () => {
+  const handleCapture = () => {
     setLoading(true);
     setResult(null);
 
-    try {
-      const HTTP_URL = getCodernicHttpUrl();
-          
-      const response = await fetch(`${HTTP_URL}/api/vision/capture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-      
-      const data = await response.json();
-      setResult(data);
-    } catch (e: unknown) {
-      setResult({ success: false, error: (e instanceof Error ? e.message : String(e)) });
-    } finally {
-      setLoading(false);
-    }
+    dispatch({
+      type: 'system/visionCaptureRequest',
+      payload: {
+        url,
+        onSuccess: (data: any) => {
+          setResult(data);
+          setLoading(false);
+        },
+        onError: (err: string) => {
+          setResult({ success: false, error: err });
+          setLoading(false);
+        }
+      }
+    });
   };
 
   return (

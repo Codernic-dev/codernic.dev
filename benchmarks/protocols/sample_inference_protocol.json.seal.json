@@ -1,0 +1,8 @@
+{
+  "protocol_file": "sample_inference_protocol.json",
+  "sha256_digest": "a50edd1a0a3788b380d61a0609e84a1784e6f99f9a13ad83838ce3a1530ed9e9",
+  "sealed_at": "2026-07-25T21:50:10Z",
+  "standard": "ISO/IEC 17025:2017",
+  "sealed_by": "tadeop",
+  "status": "SEALED_IMMUTABLE"
+}

@@ -1,3 +1,8 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useEffect, useState } from 'react';
 import { vscode } from '../../../../shared';
 import { useSelector } from 'react-redux';
@@ -13,7 +18,9 @@ interface ModelBenchmarkInfo {
   context_window?: number;
 }
 
-export function BenchmarkWidget({ models = ['gpt-4', 'claude-3-5-sonnet-20241022', 'qwen-2.5-coder', 'llama-3.1-405b'] }: { models?: string[] } = {}) {
+const DEFAULT_MODELS = ['gpt-4', 'claude-3-5-sonnet-20241022', 'qwen-2.5-coder', 'llama-3.1-405b'];
+
+export function BenchmarkWidget({ models = DEFAULT_MODELS }: { models?: string[] } = {}) {
   const [benchmarks, setBenchmarks] = useState<ModelBenchmarkInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const sandboxMode = useSelector(selectSandboxMode);
@@ -45,7 +52,7 @@ export function BenchmarkWidget({ models = ['gpt-4', 'claude-3-5-sonnet-20241022
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [models]);
+  }, [models.join(',')]);
 
   if (models.length === 0) return null;
 

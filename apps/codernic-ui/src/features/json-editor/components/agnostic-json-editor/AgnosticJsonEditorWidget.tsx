@@ -1,13 +1,18 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { useVBlockContext } from '@ai-agencee/ui/layout-engine';
-import { IconPlus } from '@ai-agencee/ui';
+import { useVBlockContext } from '@codernic/components/layout-engine';
+import { IconPlus } from '@codernic/components';
 import { WidgetSearchInput } from '../../../search/components/widget-search-input';
-import { Button } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
 import { AgnosticEditorList } from './AgnosticEditorList';
 import { AgnosticEditorForm } from './AgnosticEditorForm';
 import { scaffoldFromSchema } from '../../utils/schemaScaffold';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export interface AgnosticItem {
   id: string;

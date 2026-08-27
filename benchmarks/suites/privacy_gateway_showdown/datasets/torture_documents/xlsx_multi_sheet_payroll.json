@@ -1,0 +1,31 @@
+{
+  "document_type": "XLSX_MULTI_SHEET",
+  "document_id": "TORTURE-XLSX-001",
+  "title": "Grand Livre et Paiements 2026",
+  "sheets": [
+    {
+      "name": "Collaborateurs",
+      "cells": [
+        {"coord": "A1", "value": "ID", "type": "STRING"},
+        {"coord": "B1", "value": "Nom", "type": "STRING"},
+        {"coord": "C1", "value": "AVS", "type": "STRING"},
+        {"coord": "A2", "value": "101", "type": "INTEGER"},
+        {"coord": "B2", "value": "Jean-Luc Favre", "type": "STRING", "pii": "PERSON"},
+        {"coord": "C2", "value": "756.9284.1029.44", "type": "STRING", "pii": "CH_AVS"}
+      ]
+    },
+    {
+      "name": "Ordres_Virement",
+      "cells": [
+        {"coord": "A1", "value": "Ref", "type": "STRING"},
+        {"coord": "B1", "value": "IBAN Bénéficiaire", "type": "STRING"},
+        {"coord": "C1", "value": "Montant CHF", "type": "FLOAT"},
+        {"coord": "A2", "value": "VIR-2026-001", "type": "STRING"},
+        {"coord": "B2", "value": "CH93 0024 0240 1234 5678 9", "type": "STRING", "pii": "CH_IBAN"},
+        {"coord": "C2", "value": 12500.0, "type": "FLOAT"}
+      ]
+    }
+  ],
+  "expected_sheets": 2,
+  "cross_formula_integrity": true
+}

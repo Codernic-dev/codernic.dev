@@ -1,0 +1,28 @@
+{
+  "suite": "privacy_gateway_showdown",
+  "standard": "ISO/IEC 17025:2017",
+  "integrity": "ALCOA+",
+  "sealed_by": "Tadeo",
+  "datasets": [
+    {
+      "path": "datasets/swiss_enterprise_pii.jsonl",
+      "bytes": 5215,
+      "sha256": "b41e6c05c70e4fcb4fd721ee73fd5b83ef41cb58f86fd9de87efb21475fc6e40"
+    },
+    {
+      "path": "datasets/torture_documents/pdf_table_salary_report.json",
+      "bytes": 1006,
+      "sha256": "8713183ff1692d5465c863fb4d2ba1b30ca9e3cf8ac0d3d5c48bb04214e9e001"
+    },
+    {
+      "path": "datasets/torture_documents/docx_contract_runs.json",
+      "bytes": 1342,
+      "sha256": "16059890ecf374085f0da553ac7816ea7bdd32370fea24cfb1741d9fbcecebe8"
+    },
+    {
+      "path": "datasets/torture_documents/xlsx_multi_sheet_payroll.json",
+      "bytes": 1179,
+      "sha256": "5e27aa6f6bbbcbd444c533eb412311b215c0d54a695117d78e2595438599a529"
+    }
+  ]
+}

@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
-import { Button } from '@ai-agencee/ui';
-import { IconFileText, IconRefresh, IconArrowLeft, IconArrowRight } from '@ai-agencee/ui';
+import { Button } from '@codernic/components';
+import { IconFileText, IconRefresh, IconArrowLeft, IconArrowRight } from '@codernic/components';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentSessionName } from '../../../features/sessions/store/sessions.slice';
 import {
@@ -14,7 +19,7 @@ import {
   selectArtifactContentLoading
 } from '../../../entities/artifacts/model/artifacts-slice';
 import { WidgetSearchInput } from '../../../features/search/components/widget-search-input';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function ArtifactsPanel({ dataTestId, sessionId, widgetId }: { sessionId?: string | null, widgetId?: string; dataTestId?: string; }) {
   

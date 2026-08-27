@@ -1,0 +1,328 @@
+/* ============================================================
+   CODERNIC COMPONENTS SHOWCASE — Dual Mode (Light/Dark) Theme CSS
+   ============================================================ */
+
+@import "../../../src/tokens/codernic-theme.css";
+@import "@codernic/styleguide";
+
+/* ── Light Mode Root Tokens (Default when html:not(.dark)) ── */
+:root:not(.dark) {
+  color-scheme: light;
+  --bg-base: #f8fafc;
+  --bg-panel: #ffffff;
+  --bg-card: #ffffff;
+  --bg-surface: #f1f5f9;
+  --bg-input: #ffffff;
+
+  --border: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-active: rgba(245, 158, 11, 0.6);
+
+  --text-heading: #0f172a;
+  --text-primary: #1e293b;
+  --text-body: #475569;
+  --text-muted: #64748b;
+
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-hover: rgba(245, 158, 11, 0.5);
+  --color-text: #0f172a;
+  --color-muted: #475569;
+}
+
+/* ── Dark Mode Root Tokens ── */
+html.dark {
+  color-scheme: dark;
+  --bg-base: #07090c;
+  --bg-panel: #0d1117;
+  --bg-card: rgba(255, 255, 255, 0.025);
+  --bg-surface: #111620;
+  --bg-input: rgba(255, 255, 255, 0.04);
+
+  --border: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-active: rgba(245, 158, 11, 0.4);
+
+  --text-heading: #fafafa;
+  --text-primary: #e4e4e7;
+  --text-body: #a1a1aa;
+  --text-muted: #52525b;
+
+  --color-bg: #0a0a0c;
+  --color-surface: #0d1117;
+  --color-surface-elevated: #18181b;
+  --color-border: #27272a;
+  --color-border-hover: rgba(251, 191, 36, 0.3);
+  --color-text: #fafafa;
+  --color-muted: #a1a1aa;
+}
+
+/* ── Specimen Container Dual Mode Styling ── */
+.react-renderer-root,
+.codernic-specimen-root {
+  box-sizing: border-box;
+  font-family: var(--sans);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+html:not(.dark) .react-renderer-root,
+html:not(.dark) .codernic-specimen-root {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+}
+
+html.dark .react-renderer-root,
+html.dark .codernic-specimen-root {
+  background-color: #0a0a0c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f4f4f5 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Layout & Flex / Grid Utilities */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+
+@media (min-width: 640px) {
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sm\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.gap-1 { gap: 0.25rem; }
+.gap-1\.5 { gap: 0.375rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+
+/* Spacing Utilities */
+.p-1 { padding: 0.25rem; }
+.p-1\.5 { padding: 0.375rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-3\.5 { padding: 0.875rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+.px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+.py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
+.my-6 { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-1\.5 { margin-bottom: 0.375rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+.w-full { width: 100%; }
+.w-64 { width: 16rem; }
+.w-16 { width: 4rem; }
+.h-16 { height: 4rem; }
+.w-12 { width: 3rem; }
+.h-12 { height: 3rem; }
+.w-9 { height: 2.25rem; width: 2.25rem; }
+.h-9 { height: 2.25rem; }
+.w-4 { width: 1rem; }
+.h-4 { height: 1rem; }
+.w-3 { width: 0.75rem; }
+.h-3 { height: 0.75rem; }
+.w-2 { width: 0.5rem; }
+.h-2 { height: 0.5rem; }
+.w-2\.5 { width: 0.625rem; }
+.h-2\.5 { height: 0.625rem; }
+.w-3\/4 { width: 75%; }
+.w-1\/2 { width: 50%; }
+.w-5\/6 { width: 83.333333%; }
+
+/* Typography Utilities */
+.text-\[10px\] { font-size: 10px; line-height: 14px; }
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: var(--mono); }
+.font-sans { font-family: var(--sans); }
+.font-heading { font-family: var(--heading); }
+.uppercase { text-transform: uppercase; }
+.tracking-wider { letter-spacing: 0.05em; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+
+/* Dynamic Theme Colors & Background Adaptability */
+.bg-amber-500, .bg-brand-500 { background-color: #f59e0b !important; }
+.hover\:bg-amber-400:hover, .hover\:bg-brand-600:hover { background-color: #fbbf24 !important; }
+
+.bg-danger-500 { background-color: #f87171 !important; }
+.hover\:bg-danger-600:hover { background-color: #ef4444 !important; }
+
+html:not(.dark) .bg-zinc-800 { background-color: #f1f5f9; }
+html.dark .bg-zinc-800 { background-color: #27272a; }
+
+html:not(.dark) .bg-zinc-900 { background-color: #f8fafc; }
+html.dark .bg-zinc-900 { background-color: #18181b; }
+
+html:not(.dark) .bg-zinc-950 { background-color: #ffffff; }
+html.dark .bg-zinc-950 { background-color: #09090b; }
+
+.bg-transparent { background-color: transparent !important; }
+
+html:not(.dark) .text-zinc-100 { color: #0f172a; }
+html.dark .text-zinc-100 { color: #f4f4f5; }
+
+html:not(.dark) .text-zinc-200 { color: #1e293b; }
+html.dark .text-zinc-200 { color: #e4e4e7; }
+
+html:not(.dark) .text-zinc-300 { color: #334155; }
+html.dark .text-zinc-300 { color: #d4d4d8; }
+
+html:not(.dark) .text-zinc-400 { color: #475569; }
+html.dark .text-zinc-400 { color: #a1a1aa; }
+
+html:not(.dark) .text-zinc-500 { color: #64748b; }
+html.dark .text-zinc-500 { color: #71717a; }
+
+html:not(.dark) .text-zinc-600 { color: #94a3b8; }
+html.dark .text-zinc-600 { color: #52525b; }
+
+.text-white { color: #ffffff; }
+.text-red-400 { color: #f87171; }
+.text-emerald-400 { color: #4ade80; }
+.text-blue-400 { color: #60a5fa; }
+.text-amber-400 { color: #fbbf24; }
+.text-amber-500 { color: #f59e0b; }
+
+/* Borders & Radii */
+.border { border-style: solid; border-width: 1px; }
+.border-transparent { border-color: transparent !important; }
+
+html:not(.dark) .border-zinc-700 { border-color: #cbd5e1; }
+html.dark .border-zinc-700 { border-color: #3f3f46; }
+
+html:not(.dark) .border-zinc-800 { border-color: #e2e8f0; }
+html.dark .border-zinc-800 { border-color: #27272a; }
+
+.border-dashed { border-style: dashed; }
+.border-neutral-300 { border-color: #d4d4d8; }
+.dark\.border-neutral-600 { border-color: #52525b; }
+
+.rounded-node { border-radius: 0.5rem; }
+.rounded-sm { border-radius: 0.125rem; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-xl { border-radius: 0.75rem; }
+.rounded-full { border-radius: 9999px; }
+
+/* Interactive & States */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+.opacity-50 { opacity: 0.5; }
+.transition-colors { transition-property: color, background-color, border-color; transition-duration: 150ms; }
+.transition-all { transition-property: all; transition-duration: 150ms; }
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+/* Skeleton Shimmer & Loader Styling */
+html.dark .skeleton-loader {
+  background-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+html:not(.dark) .skeleton-loader {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── Primary Button Solid Fill & High-Contrast Styling ── */
+button.bg-amber-500,
+button.bg-brand-500,
+.vp-doc button.bg-amber-500,
+.vp-doc button.bg-brand-500 {
+  background-color: #f59e0b !important;
+  color: #09090b !important;
+  border: 1px solid transparent !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.4) !important;
+}
+
+button.bg-amber-500:hover,
+button.bg-brand-500:hover,
+.vp-doc button.bg-amber-500:hover,
+.vp-doc button.bg-brand-500:hover {
+  background-color: #fbbf24 !important;
+  color: #09090b !important;
+}
+
+/* ── Dark Mode Button & Specimen Text Contrast Safeguards ── */
+html.dark button:not(.bg-amber-500):not(.bg-brand-500):not(.bg-red-600):not(.bg-danger-500),
+html.dark .vp-doc button:not(.bg-amber-500):not(.bg-brand-500):not(.bg-red-600):not(.bg-danger-500) {
+  color: #f4f4f5 !important;
+}
+
+html.dark button.bg-zinc-800,
+html.dark .vp-doc button.bg-zinc-800 {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+  border-color: #3f3f46 !important;
+}
+
+html.dark button.bg-transparent,
+html.dark .vp-doc button.bg-transparent {
+  background-color: transparent !important;
+  color: #d4d4d8 !important;
+}
+
+html:not(.dark) button.bg-zinc-800,
+html:not(.dark) .vp-doc button.bg-zinc-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}

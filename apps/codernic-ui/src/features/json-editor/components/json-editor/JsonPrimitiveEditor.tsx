@@ -1,8 +1,13 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import type { JsonEditorProps } from './types';
-import { BaseInput, Button } from '@ai-agencee/ui';
-import { AgnosticDropdown } from '@ai-agencee/ui';
+import { BaseInput, Button } from '@codernic/components';
+import { AgnosticDropdown } from '@codernic/components';
 import { useSelector } from 'react-redux';
-import { useTestId } from '@ai-agencee/ui';
+import { useTestId } from '@codernic/components';
 
 export function JsonPrimitiveEditor({ dataTestId, value, onChange, isSplitView, fieldName, fieldSchema, rootValue }: JsonEditorProps) {
   

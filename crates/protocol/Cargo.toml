@@ -1,10 +1,10 @@
 [package]
-name = "ai_agencee_protocol"
-version = "0.6.479"
+name = "codernic_protocol"
+version = "0.6.482"
 edition = "2024"
 description = "Core communication protocol and schemas for the Codernic AI Engine"
 license = "MIT"
-repository = "https://github.com/binaryjack/codernic.dev"
+repository = "https://github.com/Codernic-dev/codernic.dev"
 homepage = "https://codernic.dev"
 
 [dependencies]
@@ -15,4 +15,4 @@ tokio = { workspace = true, features = ["net", "io-util"] }
 async-trait = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
-thiserror = "1.0"
+thiserror = { workspace = true }

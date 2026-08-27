@@ -1,4 +1,9 @@
-import type { BlockState, LayoutState } from '@ai-agencee/ui/layout-engine';
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
+import type { BlockState, LayoutState } from '@codernic/components/layout-engine';
 import { DEFAULT_LAYOUTS } from '../model/default-layouts';
 
 // Very lightweight validator implementing the constraints of layouts.schema.json

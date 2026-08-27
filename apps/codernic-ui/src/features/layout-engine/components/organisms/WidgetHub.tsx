@@ -1,6 +1,11 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { useLayoutEngine } from '@ai-agencee/ui/layout-engine';
-import { IconThought, IconBot, IconZap, IconLayers, IconSession, IconFolder, IconSettings, IconShield, IconActivity, IconFileText } from '@ai-agencee/ui';
+import { useLayoutEngine } from '@codernic/components/layout-engine';
+import { IconThought, IconBot, IconZap, IconLayers, IconSession, IconFolder, IconSettings, IconShield, IconActivity, IconFileText } from '@codernic/components';
 export type WidgetType = 'chat' | 'introspection' | 'analyse' | 'model-hub' | 'cloud-model-hub' | 'erathos' | 'galileus-router' | 'vblock' | 'sessions' | 'models-settings' | 'rules-settings' | 'prompts-settings' | 'routing-settings' | 'system-settings' | 'pirsig-widget' | 'agent-events-widget' | 'agents' | 'dags' | 'technologies' | 'sandbox' | 'artifacts' | 'benchmark-widget' | 'my-system-dashboard' | 'shield-proxy' | 'welcome-dashboard' | 'model-selection-card';
 
 export const WIDGET_DEF: { type: WidgetType; label: string; icon: any }[] = [

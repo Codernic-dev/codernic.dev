@@ -1,0 +1,25 @@
+{
+  "document_type": "PDF_TABLE",
+  "document_id": "TORTURE-PDF-001",
+  "title": "Rapport Salarial Confidentiel Q3 2026",
+  "layout": {
+    "page_count": 1,
+    "dimensions": {"width": 595.0, "height": 842.0},
+    "tables": [
+      {
+        "table_id": "T1",
+        "bbox": [50.0, 100.0, 545.0, 400.0],
+        "columns": ["ID", "Employé", "No AVS", "IBAN Paiement", "Brut CHF"],
+        "rows": [
+          ["E001", "Favre Jean-Luc", "756.9284.1029.44", "CH93 0024 0240 1234 5678 9", "12'500.00"],
+          ["E002", "Keller Marianne", "756.1122.3344.55", "CH44 0023 0230 9876 5432 1", "18'200.00"],
+          ["E003", "Zimmermann Beat", "756.7788.9900.11", "CH21 0900 0000 1234 5678 0", "9'800.00"],
+          ["E004", "Meyer Pierre-Alain", "756.3456.7890.12", "CH56 0076 7000 0123 4567 8", "15'400.00"],
+          ["E005", "Blanc Sophie", "756.9012.3456.78", "CH12 0889 9000 8765 4321 0", "14'100.00"]
+        ]
+      }
+    ]
+  },
+  "expected_structural_cells": 25,
+  "expected_ssim_baseline": 1.0
+}

@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React from 'react';
-import { IconX } from '@ai-agencee/ui';
+import { IconX } from '@codernic/components';
 import { SessionSelector } from '../../../../features/sessions/components/molecules/session-selector';
 import type { Session } from '../../../../features/sessions/store/sessions.slice';
 

@@ -1,5 +1,10 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import { useState, useEffect } from 'react';
-import { useHubEvent, IconThought } from '@ai-agencee/ui';
+import { useHubEvent, IconThought } from '@codernic/components';
 
 interface ThoughtBlockProps {
   id?: string;
@@ -46,7 +51,7 @@ export function ThoughtBlock({ id, content, streaming, 'data-testid': dataTestId
         onClick={() => {
           setIsExpanded(!isExpanded);
           if (id) {
-            import('@ai-agencee/ui').then(({ WidgetHub }) => {
+            import('@codernic/components').then(({ WidgetHub }) => {
               WidgetHub.publish({
                 type: 'codernic:focus-introspection',
                 payload: { id },

@@ -1,37 +1,38 @@
+// Copyright (c) Tadeop. All rights reserved.
+// Proprietary and Confidential Source Code.
+// Unauthorized copying, reproduction, or distribution of this file, via any medium,
+// is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
+
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ReactMarkdown from 'react-markdown';
 import { selectArtifactReview, resolveArtifactReview } from '../dag/store/dag.slice';
-import { getCodernicHttpUrl } from '../../shared/config';
-import { useTestId } from '@ai-agencee/ui';
+import { fetchArtifactContentRequest, selectArtifactContentMap, selectArtifactContentLoading, selectArtifactsError } from '../../entities/artifacts/model/artifacts-slice';
+import { useTestId } from '@codernic/components';
 
-export const ArtifactModal: React.FC = () => {
+export interface ArtifactModalProps {
+  className?: string;
+}
+
+export const ArtifactModal = ({ className = '' }: ArtifactModalProps): JSX.Element | null => {
   
   const { rootId, getTestId } = useTestId('artifact-modal', undefined);
 const dispatch = useDispatch();
   const artifactReview = useSelector(selectArtifactReview);
+  const contentMap = useSelector(selectArtifactContentMap);
+  const loading = useSelector(selectArtifactContentLoading);
+  const error = useSelector(selectArtifactsError);
   
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string>('');
 
   useEffect(() => {
     if (artifactReview && artifactReview.filename) {
-      setLoading(true);
-      const url = `${getCodernicHttpUrl()}/api/artifacts/${artifactReview.filename}`;
-      fetch(url)
-        .then(res => res.text())
-        .then(text => {
-          setContent(text);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error('Failed to load artifact', err);
-          setContent(`Failed to load artifact: ${err}`);
-          setLoading(false);
-        });
+      dispatch(fetchArtifactContentRequest(artifactReview.filename));
     }
-  }, [artifactReview]);
+  }, [artifactReview, dispatch]);
+
+  const content = artifactReview ? contentMap[artifactReview.filename] || '' : '';
+  const displayContent = error ? `Failed to load artifact: ${error}` : content;
 
   if (!artifactReview) return null;
 
@@ -61,7 +62,7 @@ const dispatch = useDispatch();
               <div className="w-8 h-8 border-2 border-t-codernic-primary rounded-full animate-spin border-codernic-primary/30"></div>
             </div>
           ) : (
-            <ReactMarkdown data-testid={getTestId('react-markdown')}>{content}</ReactMarkdown>
+            <ReactMarkdown data-testid={getTestId('react-markdown')}>{displayContent}</ReactMarkdown>
           )}
         </div>
 

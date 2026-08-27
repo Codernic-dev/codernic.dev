@@ -1,9 +1,0 @@
-{
-  "rules": [
-    {
-      "pattern": ".*",
-      "provider": "local-managed-llama",
-      "model": "qwen2.5-coder:7b"
-    }
-  ]
-}
