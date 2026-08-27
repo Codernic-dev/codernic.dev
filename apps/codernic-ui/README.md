@@ -76,8 +76,8 @@ Codernic UI is a modern React application providing the user interface for the C
 
 ```bash
 # Clone the repository
-git clone https://github.com/binaryjack/ai-agencee.git
-cd ai-agencee/apps/codernic-ui
+git clone https://github.com/Codernic-dev/codernic.dev.git
+cd codernic.dev/apps/codernic-ui
 
 # Install dependencies
 pnpm install
