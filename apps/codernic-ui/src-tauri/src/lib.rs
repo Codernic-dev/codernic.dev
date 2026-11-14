@@ -216,7 +216,7 @@ fn open_global_config() -> Result<(), String> {
 
 #[tauri::command]
 fn factory_reset() -> Result<(), String> {
-    let mut path = dirs::home_dir().ok_or("No home directory found")?;
+    let mut path = codernic_nano::home_dir().ok_or("No home directory found")?;
     path.push(".codernic");
     
     if path.exists() {
