@@ -5,5 +5,4 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
-ring = { workspace = true }
-hex = { workspace = true }
+codernic-nano = { workspace = true }
