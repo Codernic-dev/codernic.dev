@@ -1,0 +1,40 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Hardware probe capabilities and workload tiering for sovereign compute nodes.
+
+#[derive(Copy)]
+pub enum ComputeTier {
+    EdgeLite,
+    WorkstationSimd,
+    ClusterAccelerator,
+}
+
+pub struct HwCapabilities {
+    pub logical_cores: i64,
+    pub ram_gb: i64,
+    pub has_neon_or_avx2: bool,
+    pub has_gpu_compute: bool,
+}
+
+#[capabilities(pure)]
+pub fn classify_compute_tier(hw: &HwCapabilities) -> ComputeTier
+    requires hw.logical_cores >= 1 && hw.ram_gb >= 1
+{
+    if hw.has_gpu_compute && hw.ram_gb >= 64 {
+        return ComputeTier::ClusterAccelerator;
+    }
+    if hw.has_neon_or_avx2 && hw.ram_gb >= 16 && hw.logical_cores >= 8 {
+        return ComputeTier::WorkstationSimd;
+    }
+    ComputeTier::EdgeLite
+}
+
+#[capabilities(pure)]
+pub fn max_recommended_threads(hw: &HwCapabilities) -> i64
+    requires hw.logical_cores >= 1
+    ensures result >= 1
+{
+    if hw.logical_cores <= 2 {
+        return 1;
+    }
+    hw.logical_cores - 2
+}

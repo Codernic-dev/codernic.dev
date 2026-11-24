@@ -1,0 +1,41 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+use protocol_dag::*;
+use protocol_license::*;
+use protocol_hw::*;
+
+#[test]
+fn test_protocol_dag_validation() {
+    let mut dag = new_dag_graph("codernic-build");
+    assert_eq(add_lane(&mut dag, "parse").is_ok(), true);
+    assert_eq(add_lane(&mut dag, "verify").is_ok(), true);
+    assert_eq(add_lane(&mut dag, "parse").is_err(), true);
+    assert_eq(add_dependency(&mut dag, "verify", "parse").is_ok(), true);
+    assert_eq(add_dependency(&mut dag, "parse", "parse").is_err(), true);
+    assert_eq(validate_dag_integrity(&dag).is_ok(), true);
+}
+
+#[test]
+fn test_protocol_license_and_hw() {
+    let mut mods: Vec<str> = Vec::new();
+    mods.push("dna");
+    mods.push("ragtime");
+    let lic = LicensePayload {
+        tier: LicenseTier::Production,
+        issued_at: 1000,
+        expires_at: 5000,
+        machine_id: "m4-pro-01",
+        modules: mods,
+    };
+    assert_eq(is_license_active(&lic, 2500).is_ok(), true);
+    assert_eq(is_license_active(&lic, 6000).is_err(), true);
+    assert_eq(has_module_entitlement(&lic, "dna"), true);
+    assert_eq(has_module_entitlement(&lic, "unknown"), false);
+
+    let hw = HwCapabilities { logical_cores: 14, ram_gb: 48, has_neon_or_avx2: true, has_gpu_compute: false };
+    assert_eq(max_recommended_threads(&hw), 12);
+    let tier_ok = match classify_compute_tier(&hw) {
+        ComputeTier::WorkstationSimd => true,
+        _ => false,
+    };
+    assert_eq(tier_ok, true);
+}

@@ -1,0 +1,84 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Protocol DAG configuration and dependency acyclicity verifier.
+
+#[derive(Copy)]
+pub enum AgentParadigm {
+    Linear,
+    ReAct,
+    Supervisor,
+    SystemsDesigner,
+}
+
+pub struct DagGraph {
+    pub name: str,
+    pub lane_ids: Vec<str>,
+    pub dep_sources: Vec<str>,
+    pub dep_targets: Vec<str>,
+}
+
+#[capabilities(pure)]
+pub fn new_dag_graph(name: str) -> DagGraph
+    requires name.len() > 0
+{
+    DagGraph {
+        name,
+        lane_ids: Vec::new(),
+        dep_sources: Vec::new(),
+        dep_targets: Vec::new(),
+    }
+}
+
+#[capabilities(pure)]
+pub fn add_lane(dag: &mut DagGraph, lane_id: str) -> Result<i64, str> {
+    if lane_id.len() == 0 {
+        return Result::Err("lane_id cannot be empty");
+    }
+    let mut i: i64 = 0;
+    while i < dag.lane_ids.len() {
+        if dag.lane_ids.get(i) == lane_id {
+            return Result::Err("Duplicate lane_id");
+        }
+        i = i + 1;
+    }
+    dag.lane_ids.push(lane_id);
+    Result::Ok(dag.lane_ids.len())
+}
+
+#[capabilities(pure)]
+pub fn add_dependency(dag: &mut DagGraph, lane_id: str, depends_on: str) -> Result<bool, str> {
+    if lane_id == depends_on {
+        return Result::Err("Self-dependency creates cycle");
+    }
+    dag.dep_sources.push(lane_id);
+    dag.dep_targets.push(depends_on);
+    Result::Ok(true)
+}
+
+#[capabilities(pure)]
+fn lane_exists(dag: &DagGraph, lane_id: str) -> bool {
+    let mut i: i64 = 0;
+    while i < dag.lane_ids.len() {
+        if dag.lane_ids.get(i) == lane_id {
+            return true;
+        }
+        i = i + 1;
+    }
+    false
+}
+
+#[capabilities(pure)]
+pub fn validate_dag_integrity(dag: &DagGraph) -> Result<bool, str> {
+    if dag.lane_ids.len() == 0 {
+        return Result::Err("DAG requires at least one lane");
+    }
+    let mut i: i64 = 0;
+    while i < dag.dep_sources.len() {
+        let s = dag.dep_sources.get(i);
+        let t = dag.dep_targets.get(i);
+        if !lane_exists(dag, s) || !lane_exists(dag, t) {
+            return Result::Err("Dangling DAG dependency");
+        }
+        i = i + 1;
+    }
+    Result::Ok(true)
+}

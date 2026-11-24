@@ -1,0 +1,42 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Protocol license tiering, expiry validation, and module entitlements.
+
+#[derive(Copy)]
+pub enum LicenseTier {
+    Free,
+    NdaTrial,
+    Production,
+}
+
+pub struct LicensePayload {
+    pub tier: LicenseTier,
+    pub issued_at: i64,
+    pub expires_at: i64,
+    pub machine_id: str,
+    pub modules: Vec<str>,
+}
+
+#[capabilities(pure)]
+pub fn is_license_active(lic: &LicensePayload, now_ts: i64) -> Result<bool, str>
+    requires now_ts >= 0
+{
+    if lic.expires_at < lic.issued_at {
+        return Result::Err("Invalid license window");
+    }
+    if now_ts > lic.expires_at {
+        return Result::Err("License expired");
+    }
+    Result::Ok(true)
+}
+
+#[capabilities(pure)]
+pub fn has_module_entitlement(lic: &LicensePayload, module_name: str) -> bool {
+    let mut i: i64 = 0;
+    while i < lic.modules.len() {
+        if lic.modules.get(i) == module_name || lic.modules.get(i) == "*" {
+            return true;
+        }
+        i = i + 1;
+    }
+    false
+}

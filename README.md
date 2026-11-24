@@ -1,5 +1,9 @@
 # Codernic — Sovereign AI Infrastructure
 
+> [!WARNING]
+> **Rust Legacy Layer — Deprecated:** The Helonium v2.0 implementation in [`helonium/`](./helonium) is now the primary sovereign codebase for this repository. Existing Rust crates are marked **deprecated** and retained strictly for backwards compatibility.
+
+
 [![License](https://img.shields.io/badge/License-AGPLv3%20%2F%20Commercial-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg)](https://www.rust-lang.org/)
 [![Benchmarks](https://img.shields.io/badge/Benchmarks-Reproducible%20Metrics-brightgreen.svg)](benchmarks/README_REPRODUCTION.md)

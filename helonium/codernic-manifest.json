@@ -1,0 +1,7 @@
+{
+  "name": "codernic-dev-protocol",
+  "version": "1.0.0",
+  "description": "Helonium v2.0 dual-stack mirror for codernic.dev core protocol",
+  "capabilities": ["pure"],
+  "exports": ["protocol_dag", "protocol_license", "protocol_hw"]
+}
