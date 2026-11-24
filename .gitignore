@@ -67,3 +67,12 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Sovereign runtime, caches & databases (auto-standardized)
+.coe/
+.next/
+.turbo/
+*.redb
+*.db
+*.db-wal
+*.db-shm
