@@ -1,0 +1,15 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Interprocess transport port mirroring codernic_protocol::transport::Transport.
+
+pub port TransportPort {
+    fn send_request_line(&mut self, json_line: str) -> Result<i64, str>
+        requires json_line.len() > 0
+        ensures result.is_ok();
+
+    fn send_response_line(&mut self, json_line: str) -> Result<i64, str>
+        requires json_line.len() > 0
+        ensures result.is_ok();
+
+    fn total_frames(&self) -> i64
+        ensures result >= 0;
+}

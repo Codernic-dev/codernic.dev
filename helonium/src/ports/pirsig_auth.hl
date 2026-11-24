@@ -1,0 +1,10 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// B2B Pirsig health challenge HMAC authentication port.
+
+pub port PirsigAuthPort {
+    fn sign_challenge(&self, secret: Secret<str>, nonce: str) -> str
+        requires nonce.len() > 0;
+
+    fn verify_challenge(&self, secret: Secret<str>, nonce: str, sig: str) -> bool
+        requires nonce.len() > 0;
+}

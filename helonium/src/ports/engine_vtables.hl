@@ -1,0 +1,52 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Engine FFI VTable port contracts (deming, galileus_api, hw_probe, ockham, ragtime).
+
+#[derive(Copy)]
+pub enum FfiBackendType {
+    Vulkan,
+    Cuda,
+    Hip,
+    Metal,
+    Cpu,
+}
+
+#[capabilities(pure)]
+pub fn ffi_backend_name(b: FfiBackendType) -> str {
+    match b {
+        FfiBackendType::Vulkan => "vulkan",
+        FfiBackendType::Cuda => "cuda",
+        FfiBackendType::Hip => "hip",
+        FfiBackendType::Metal => "metal",
+        FfiBackendType::Cpu => "cpu",
+    }
+}
+
+pub port DemingEnginePort {
+    fn gguf_parse(&mut self, path: str) -> Result<i64, str> requires path.len() > 0;
+    fn gguf_version(&self, handle: i64) -> i64 requires handle >= 0;
+    fn gguf_tensor_count(&self, handle: i64) -> i64 requires handle >= 0;
+    fn gpu_context_build(&mut self, preference: str) -> Result<i64, str> requires preference.len() > 0;
+    fn gpu_context_backend_type(&self, ctx: i64) -> str requires ctx >= 0;
+    fn memory_alloc_f32(&mut self, ctx: i64, elems: i64) -> Result<i64, str> requires ctx >= 0 && elems > 0;
+    fn strategy_execute(&self, ctx: i64, elems: i64) -> bool requires ctx >= 0 && elems > 0;
+}
+
+pub port GalileusEnginePort {
+    fn dag_builder_new(&mut self, name: str) -> i64 requires name.len() > 0 ensures result >= 1;
+    fn dag_builder_add_node(&mut self, builder: i64, node_id: str, spec: str) -> bool requires builder >= 1 && node_id.len() > 0;
+    fn node_runner_execute(&self, builder: i64) -> Result<str, str> requires builder >= 1;
+}
+
+pub port HwProbePort {
+    fn get_vulkan_capabilities(&self) -> Result<str, str>;
+}
+
+pub port OckhamEnginePort {
+    fn dedup_cache_check(&mut self, key: str) -> bool requires key.len() > 0;
+    fn quality_gate_evaluate(&self, payload: str) -> Result<str, str> requires payload.len() > 0;
+}
+
+pub port RagtimeEnginePort {
+    fn index_manager_new(&mut self, root: str) -> i64 requires root.len() > 0 ensures result >= 1;
+    fn semantic_search_execute(&self, manager: i64, query: str) -> Result<str, str> requires manager >= 1 && query.len() > 0;
+}

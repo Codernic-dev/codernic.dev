@@ -1,3 +1,4 @@
+# DEPRECATED: Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.
 [package]
 name = "pirsig-protocol"
 version = "0.6.482"

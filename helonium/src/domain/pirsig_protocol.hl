@@ -1,0 +1,74 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// B2B Pirsig health challenge HMAC-SHA256 verification (crates/b2b/pirsig-protocol/src/lib.rs).
+
+use ports::pirsig_auth::PirsigAuthPort;
+
+#[derive(Copy, Json)]
+pub struct HealthRequest {
+    pub nonce: str,
+}
+
+#[derive(Copy, Json)]
+pub struct HealthResponse {
+    pub sig: str,
+    pub version: str,
+}
+
+#[capabilities(pure)]
+pub fn compute_sig_bytes(secret: &Bytes, nonce: str) -> str
+    requires nonce.len() > 0
+{
+    let msg = Bytes::from_str(nonce);
+    let mac = crypto::hmac_sha256(secret, &msg);
+    mac.to_hex()
+}
+
+#[capabilities(pure)]
+pub fn verify_sig_bytes(secret: &Bytes, nonce: str, sig: str) -> bool
+    requires nonce.len() > 0
+{
+    let sig_bytes = Bytes::from_hex(sig);
+    if sig_bytes.len() != 32 {
+        return false;
+    }
+    let msg = Bytes::from_str(nonce);
+    let expected = crypto::hmac_sha256(secret, &msg);
+    crypto::constant_time_eq(&expected, &sig_bytes)
+}
+
+#[capabilities(pure)]
+pub fn compute_sig(secret: Secret<str>, nonce: str) -> str
+    requires nonce.len() > 0
+{
+    let sec_bytes = Bytes::from_str(secret.expose_for_auth());
+    compute_sig_bytes(&sec_bytes, nonce)
+}
+
+#[capabilities(pure)]
+pub fn verify_sig(secret: Secret<str>, nonce: str, sig: str) -> bool
+    requires nonce.len() > 0
+{
+    let sec_bytes = Bytes::from_str(secret.expose_for_auth());
+    verify_sig_bytes(&sec_bytes, nonce, sig)
+}
+
+pub service PirsigHealthService {
+    inject auth: &PirsigAuthPort,
+}
+
+impl PirsigHealthService {
+    #[capabilities(pure)]
+    pub fn build_response(&self, secret: Secret<str>, req: HealthRequest, version: str) -> HealthResponse
+        requires req.nonce.len() > 0 && version.len() > 0
+    {
+        let sig = self.auth.sign_challenge(secret, req.nonce);
+        HealthResponse { sig, version }
+    }
+
+    #[capabilities(pure)]
+    pub fn verify_response(&self, secret: Secret<str>, req: HealthRequest, res: HealthResponse) -> bool
+        requires req.nonce.len() > 0
+    {
+        self.auth.verify_challenge(secret, req.nonce, res.sig)
+    }
+}

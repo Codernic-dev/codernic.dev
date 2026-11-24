@@ -1,0 +1,166 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Full DAG configuration, checkpoints, barriers, indexing config, and execution events (dag.rs).
+
+use protocol_dag::AgentParadigm;
+
+pub struct IndexingConfig {
+    pub root_path: str,
+    pub project_id: Option<str>,
+    pub pooling_strategy: str,
+    pub model_type: str,
+    pub languages: Option<str>,
+    pub exclude_patterns: Option<str>,
+    pub additional_roots: Vec<str>,
+    pub respect_gitignore: bool,
+    pub json_output: bool,
+    pub max_concurrency: Option<i64>,
+}
+
+#[derive(Copy)]
+pub struct CheckpointConfig {
+    pub id: str,
+    pub mode: str,
+    pub on_fail: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct LaneNodeRow {
+    pub id: str,
+    pub agent_file: str,
+    pub supervisor_file: Option<str>,
+    pub paradigm: Option<AgentParadigm>,
+    pub skill: Option<str>,
+    pub input_context_json: Option<str>,
+    pub metadata_json: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct LaneDepEdge {
+    pub lane_id: str,
+    pub depends_on: str,
+}
+
+#[derive(Copy)]
+pub struct LaneCheckpointEntry {
+    pub lane_id: str,
+    pub checkpoint: CheckpointConfig,
+}
+
+#[derive(Copy)]
+pub struct BarrierParticipantRow {
+    pub barrier_name: str,
+    pub participant_lane: str,
+    pub timeout_ms: Option<i64>,
+}
+
+pub struct DagConfig {
+    pub name: str,
+    pub description: Option<str>,
+    pub lanes: Vec<LaneNodeRow>,
+    pub deps: Vec<LaneDepEdge>,
+    pub checkpoints: Vec<LaneCheckpointEntry>,
+    pub barriers: Vec<BarrierParticipantRow>,
+    pub capability_registry: Map<str, str>,
+    pub model_router_file: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct LaneEventMeta {
+    pub lane_id: str,
+    pub timestamp: i64,
+    pub chunk: str,
+    pub exit_code: i64,
+    pub error: str,
+}
+
+#[derive(Copy)]
+pub enum DagExecutionEvent {
+    LaneStarted(LaneEventMeta),
+    LaneOutput(LaneEventMeta),
+    LaneCompleted(LaneEventMeta),
+    LaneFailed(LaneEventMeta),
+}
+
+impl DagConfig {
+    #[capabilities(pure)]
+    pub fn new(name: str) -> DagConfig
+        requires name.len() > 0
+    {
+        DagConfig {
+            name,
+            description: Option::<str>::None,
+            lanes: Vec::<LaneNodeRow>::new(),
+            deps: Vec::<LaneDepEdge>::new(),
+            checkpoints: Vec::<LaneCheckpointEntry>::new(),
+            barriers: Vec::<BarrierParticipantRow>::new(),
+            capability_registry: Map::<str, str>::new(),
+            model_router_file: Option::<str>::None,
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn add_lane(&mut self, row: LaneNodeRow) -> Result<i64, str> {
+        if row.id.len() == 0 || row.agent_file.len() == 0 {
+            return Result::<i64, str>::Err("Lane id and agent_file must be non-empty");
+        }
+        if self.has_lane(row.id) {
+            return Result::<i64, str>::Err("Duplicate lane id: " + row.id);
+        }
+        self.lanes.push(row);
+        Result::<i64, str>::Ok(self.lanes.len())
+    }
+
+    #[capabilities(pure)]
+    pub fn has_lane(&self, lane_id: str) -> bool {
+        let mut i: i64 = 0;
+        while i < self.lanes.len() {
+            if self.lanes.get(i).id == lane_id {
+                return true;
+            }
+            i = i + 1;
+        }
+        false
+    }
+
+    #[capabilities(pure)]
+    pub fn validate(&self) -> Result<bool, str> {
+        if self.lanes.len() == 0 {
+            return Result::<bool, str>::Err("DagConfig requires at least one lane");
+        }
+        let mut i: i64 = 0;
+        while i < self.deps.len() {
+            let e = self.deps.get(i);
+            if e.lane_id == e.depends_on {
+                return Result::<bool, str>::Err("Self-dependency in lane: " + e.lane_id);
+            }
+            if !self.has_lane(e.lane_id) || !self.has_lane(e.depends_on) {
+                return Result::<bool, str>::Err("Dangling dependency target: " + e.depends_on);
+            }
+            i = i + 1;
+        }
+        self.validate_barriers()
+    }
+
+    #[capabilities(pure)]
+    fn validate_barriers(&self) -> Result<bool, str> {
+        let mut i: i64 = 0;
+        while i < self.barriers.len() {
+            let b = self.barriers.get(i);
+            if !self.has_lane(b.participant_lane) {
+                return Result::<bool, str>::Err("Unknown barrier participant: " + b.participant_lane);
+            }
+            i = i + 1;
+        }
+        Result::<bool, str>::Ok(true)
+    }
+}
+
+#[capabilities(pure)]
+pub fn dag_execution_event_kind(ev: DagExecutionEvent) -> str {
+    match ev {
+        DagExecutionEvent::LaneStarted(_m) => "LaneStarted",
+        DagExecutionEvent::LaneOutput(_m) => "LaneOutput",
+        DagExecutionEvent::LaneCompleted(_m) => "LaneCompleted",
+        DagExecutionEvent::LaneFailed(_m) => "LaneFailed",
+    }
+}

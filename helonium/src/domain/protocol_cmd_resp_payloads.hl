@@ -1,0 +1,118 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Payload structs for CommandResponse variants (crates/protocol/src/commands.rs).
+
+use domain::protocol_cmd_types::*;
+
+#[derive(Copy)]
+pub struct AstMetricsPayload {
+    pub kpi_score: f64,
+    pub symbols_count: i64,
+    pub qualitative_flags_csv: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct IndexingProgressPayload {
+    pub files_indexed: i64,
+    pub total_files: i64,
+    pub percentage: i64,
+}
+
+#[derive(Copy)]
+pub struct DaemonStatusPayload {
+    pub active_slots: i64,
+    pub max_slots: i64,
+    pub vram_used_gb: Option<f64>,
+    pub vram_total_gb: Option<f64>,
+    pub ram_used_gb: Option<f64>,
+    pub total_ram_gb: Option<f64>,
+    pub cpu_usage_pct: Option<f64>,
+    pub is_indexing: bool,
+}
+
+#[derive(Copy)]
+pub struct VersionPayload {
+    pub version: str,
+    pub pid: i64,
+}
+
+#[derive(Copy)]
+pub struct ModeTransitionPayload {
+    pub session_id: str,
+    pub from: str,
+    pub to: str,
+    pub reason: str,
+}
+
+#[derive(Copy)]
+pub struct RequestToolApprovalPayload {
+    pub tool_name: str,
+    pub request_id: str,
+    pub sandbox_recommended: bool,
+}
+
+#[derive(Copy)]
+pub struct EgressBlockedPayload {
+    pub reason: str,
+    pub payload_id: str,
+}
+
+#[derive(Copy)]
+pub struct ResourceExhaustedPayload {
+    pub reason: str,
+    pub required_vram_gb: f64,
+    pub available_vram_gb: f64,
+    pub required_tokens: i64,
+    pub max_tokens: i64,
+}
+
+#[derive(Copy)]
+pub struct AggregatorSyncPayload {
+    pub providers_updated: i64,
+    pub models_added: i64,
+}
+
+#[derive(Copy)]
+pub struct SessionLoadedPayload {
+    pub id: str,
+    pub messages_json: str,
+    pub erathos_schema_json: Option<str>,
+    pub config: Option<SessionConfigMeta>,
+}
+
+#[derive(Copy)]
+pub struct AssetContentPayload {
+    pub id: str,
+    pub content: str,
+}
+
+#[derive(Copy)]
+pub struct ToolCallPayload {
+    pub name: str,
+    pub arguments_json: str,
+}
+
+#[derive(Copy)]
+pub struct ToolResponsePayload {
+    pub name: str,
+    pub result: str,
+}
+
+#[derive(Copy)]
+pub struct HfdProgressPayload {
+    pub downloaded: i64,
+    pub total: i64,
+}
+
+#[derive(Copy)]
+pub struct AddCloudModelResultPayload {
+    pub success: bool,
+    pub provider_id: str,
+    pub model_id: str,
+}
+
+#[derive(Copy)]
+pub struct ModelDeletedPayload {
+    pub name: str,
+    pub success: bool,
+    pub error: Option<str>,
+}

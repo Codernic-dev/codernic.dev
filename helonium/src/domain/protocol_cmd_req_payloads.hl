@@ -1,0 +1,147 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Payload structs for CommandRequest variants (crates/protocol/src/commands.rs).
+
+#[derive(Copy)]
+pub struct ExecuteAskPayload {
+    pub task_id: str,
+    pub model_id: str,
+    pub messages_json: str,
+    pub max_tokens: i64,
+    pub use_rag: bool,
+    pub route_profile: Option<str>,
+    pub project_id: Option<str>,
+    pub auth_token: Option<Secret<str>>,
+}
+
+#[derive(Copy)]
+pub struct SessionTargetPayload {
+    pub id: str,
+    pub new_name: Option<str>,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct UpdateSessionConfigPayload {
+    pub session_id: str,
+    pub project_id: Option<str>,
+    pub llm_id: Option<str>,
+    pub use_rag: Option<bool>,
+    pub auto_pilot: Option<bool>,
+    pub current_mode: Option<str>,
+    pub erathos_schema_json: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct UpdateSessionSchemaPayload {
+    pub session_id: str,
+    pub schema_json: str,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct AssetTransferPayload {
+    pub asset_type: str,
+    pub id: str,
+    pub content: Option<str>,
+    pub mode: Option<str>,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct SaveLlmSecretPayload {
+    pub provider_id: str,
+    pub api_key: Secret<str>,
+    pub base_url: Option<str>,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct ToolApprovalPayload {
+    pub request_id: str,
+    pub approved: bool,
+}
+
+#[derive(Copy)]
+pub struct GeneratePlanPayload {
+    pub instruction: str,
+    pub project_id: Option<str>,
+    pub route_profile: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct ExecuteDagPayload {
+    pub task_id: str,
+    pub project_id: Option<str>,
+    pub instruction: str,
+    pub route_profile: Option<str>,
+    pub yolo_mode: bool,
+}
+
+#[derive(Copy)]
+pub struct IndexingRequestPayload {
+    pub root_path: str,
+    pub project_id: Option<str>,
+    pub pooling_strategy: str,
+    pub model_type: str,
+}
+
+#[derive(Copy)]
+pub struct DownloadModelPayload {
+    pub name: str,
+    pub provider_path: str,
+}
+
+#[derive(Copy)]
+pub struct ChatCommandPayload {
+    pub session_id: str,
+    pub prompt: str,
+    pub force_mode: Option<str>,
+    pub sub_mode: Option<str>,
+    pub use_rag: bool,
+    pub model_id: str,
+    pub max_tokens: i64,
+    pub yolo_mode: bool,
+    pub route_profile: Option<str>,
+    pub project_id: Option<str>,
+    pub auth_token: Option<Secret<str>>,
+}
+
+#[derive(Copy)]
+pub struct StoreSecretPayload {
+    pub key: str,
+    pub secret: Secret<str>,
+}
+
+#[derive(Copy)]
+pub struct ModelBenchmarksQuery {
+    pub models_csv: str,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct AddCloudModelPayload {
+    pub provider_id: str,
+    pub model_json: str,
+}
+
+#[derive(Copy)]
+pub struct DeleteModelPayload {
+    pub name: str,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct OckhamCompressPayload {
+    pub messages_json: str,
+    pub budget_tokens: i64,
+    pub strategy: str,
+    pub session_id: str,
+    pub project_id: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct OckhamSearchPayload {
+    pub query: str,
+    pub match_type: str,
+    pub project_id: Option<str>,
+}

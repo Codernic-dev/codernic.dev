@@ -1,3 +1,5 @@
+#![deprecated(note = "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.")]
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

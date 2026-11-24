@@ -1,0 +1,7 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Filesystem existence probe port for LocalModelDefinition validation.
+
+pub port FilePresencePort {
+    fn file_exists(&self, path: str) -> bool
+        requires path.len() > 0;
+}

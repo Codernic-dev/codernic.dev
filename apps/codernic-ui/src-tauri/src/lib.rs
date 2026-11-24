@@ -5,6 +5,8 @@
 // Unauthorized copying, reproduction, or distribution of this file, via any medium,
 // is strictly prohibited under Non-Disclosure Agreement (NDA) and applicable law.
 
+#![deprecated(note = "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.")]
+
 use tauri::{Emitter, Window};
 use tauri_plugin_shell::ShellExt;
 use serde::{Deserialize, Serialize};

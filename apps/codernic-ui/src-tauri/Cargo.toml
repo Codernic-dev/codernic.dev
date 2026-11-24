@@ -1,3 +1,4 @@
+# DEPRECATED: Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.
 [package]
 name = "codernic-ui"
 version = "0.1.0"

@@ -1,0 +1,71 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Hermetic unit test doubles for codernic.dev ports.
+
+use ports::transport_port::TransportPort;
+use ports::template_resolver::TemplateResolverPort;
+use ports::file_probe::FilePresencePort;
+use ports::ui_chassis_ports::*;
+
+pub mock MockTransportPort for TransportPort {
+    pub frames: i64,
+    pub last_payload: str,
+
+    #[capabilities(pure)]
+    pub fn send_request_line(&mut self, json_line: str) -> Result<i64, str> {
+        self.frames = self.frames + 1;
+        self.last_payload = json_line;
+        Result::<i64, str>::Ok(self.frames)
+    }
+
+    #[capabilities(pure)]
+    pub fn send_response_line(&mut self, json_line: str) -> Result<i64, str> {
+        self.frames = self.frames + 1;
+        self.last_payload = json_line;
+        Result::<i64, str>::Ok(self.frames)
+    }
+
+    #[capabilities(pure)]
+    pub fn total_frames(&self) -> i64 {
+        self.frames
+    }
+}
+
+pub mock MockTemplateResolver for TemplateResolverPort {
+    pub schema_json: str,
+
+    #[capabilities(pure)]
+    pub fn resolve_template(&self, _template_id: str) -> Option<str> {
+        if self.schema_json.len() == 0 {
+            return Option::<str>::None;
+        }
+        Option::<str>::Some(self.schema_json)
+    }
+}
+
+pub mock MockFilePresence for FilePresencePort {
+    pub allow_all: bool,
+
+    #[capabilities(pure)]
+    pub fn file_exists(&self, _path: str) -> bool {
+        self.allow_all
+    }
+}
+
+pub mock MockGitEngine for GitEnginePort {
+    pub commit_hash: str,
+
+    #[capabilities(pure)]
+    pub fn get_status(&self, _repo_path: str) -> Result<Vec<GitFileStatus>, str> {
+        Result::<Vec<GitFileStatus>, str>::Ok(Vec::<GitFileStatus>::new())
+    }
+
+    #[capabilities(pure)]
+    pub fn get_branches(&self, _repo_path: str) -> Result<Vec<GitBranchInfo>, str> {
+        Result::<Vec<GitBranchInfo>, str>::Ok(Vec::<GitBranchInfo>::new())
+    }
+
+    #[capabilities(pure)]
+    pub fn commit(&mut self, _repo_path: str, _message: str) -> Result<str, str> {
+        Result::<str, str>::Ok(self.commit_hash)
+    }
+}

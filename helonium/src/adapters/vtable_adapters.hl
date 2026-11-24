@@ -1,0 +1,189 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Production in-memory engine VTable adapters (deming, galileus, hw_probe, ockham, ragtime).
+
+use ports::engine_vtables::*;
+
+pub struct InMemoryDemingAdapter {
+    pub next_handle: i64,
+    pub gguf_paths: Map<i64, str>,
+    pub backends: Map<i64, str>,
+    pub allocated_elems: i64,
+}
+
+impl InMemoryDemingAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryDemingAdapter {
+        InMemoryDemingAdapter {
+            next_handle: 1,
+            gguf_paths: Map::<i64, str>::new(),
+            backends: Map::<i64, str>::new(),
+            allocated_elems: 0,
+        }
+    }
+}
+
+impl DemingEnginePort for InMemoryDemingAdapter {
+    #[capabilities(pure)]
+    pub fn gguf_parse(&mut self, path: str) -> Result<i64, str> {
+        if !regex::is_match("\\.gguf$", path) {
+            return Result::<i64, str>::Err("Expected .gguf file");
+        }
+        let h = self.next_handle;
+        self.next_handle = self.next_handle + 1;
+        self.gguf_paths.insert(h, path);
+        Result::<i64, str>::Ok(h)
+    }
+
+    #[capabilities(pure)]
+    pub fn gguf_version(&self, handle: i64) -> i64 {
+        if self.gguf_paths.contains_key(handle) { 3 } else { 0 }
+    }
+
+    #[capabilities(pure)]
+    pub fn gguf_tensor_count(&self, handle: i64) -> i64 {
+        if self.gguf_paths.contains_key(handle) { 291 } else { 0 }
+    }
+
+    #[capabilities(pure)]
+    pub fn gpu_context_build(&mut self, preference: str) -> Result<i64, str> {
+        let ctx = self.next_handle;
+        self.next_handle = self.next_handle + 1;
+        self.backends.insert(ctx, preference);
+        Result::<i64, str>::Ok(ctx)
+    }
+
+    #[capabilities(pure)]
+    pub fn gpu_context_backend_type(&self, ctx: i64) -> str {
+        self.backends.get(ctx).unwrap_or("cpu")
+    }
+
+    #[capabilities(pure)]
+    pub fn memory_alloc_f32(&mut self, ctx: i64, elems: i64) -> Result<i64, str> {
+        if !self.backends.contains_key(ctx) {
+            return Result::<i64, str>::Err("Unknown GPU context");
+        }
+        self.allocated_elems = self.allocated_elems + elems;
+        Result::<i64, str>::Ok(self.allocated_elems)
+    }
+
+    #[capabilities(pure)]
+    pub fn strategy_execute(&self, ctx: i64, elems: i64) -> bool {
+        self.backends.contains_key(ctx) && elems > 0
+    }
+}
+
+pub struct InMemoryGalileusAdapter {
+    pub next_id: i64,
+    pub node_count: Map<i64, i64>,
+}
+
+impl InMemoryGalileusAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryGalileusAdapter {
+        InMemoryGalileusAdapter { next_id: 1, node_count: Map::<i64, i64>::new() }
+    }
+}
+
+impl GalileusEnginePort for InMemoryGalileusAdapter {
+    #[capabilities(pure)]
+    pub fn dag_builder_new(&mut self, _name: str) -> i64 {
+        let id = self.next_id;
+        self.next_id = self.next_id + 1;
+        self.node_count.insert(id, 0);
+        id
+    }
+
+    #[capabilities(pure)]
+    pub fn dag_builder_add_node(&mut self, builder: i64, _node_id: str, _spec: str) -> bool {
+        if !self.node_count.contains_key(builder) { return false; }
+        let cur = self.node_count.get(builder).unwrap_or(0);
+        self.node_count.insert(builder, cur + 1);
+        true
+    }
+
+    #[capabilities(pure)]
+    pub fn node_runner_execute(&self, builder: i64) -> Result<str, str> {
+        let n = self.node_count.get(builder).unwrap_or(0);
+        if n == 0 { return Result::<str, str>::Err("DAG has zero nodes"); }
+        Result::<str, str>::Ok("executed:" + to_str(n))
+    }
+}
+
+pub struct InMemoryHwProbeAdapter {
+    pub vulkan_json: str,
+}
+
+impl InMemoryHwProbeAdapter {
+    #[capabilities(pure)]
+    pub fn new(vulkan_json: str) -> InMemoryHwProbeAdapter {
+        InMemoryHwProbeAdapter { vulkan_json }
+    }
+}
+
+impl HwProbePort for InMemoryHwProbeAdapter {
+    #[capabilities(pure)]
+    pub fn get_vulkan_capabilities(&self) -> Result<str, str> {
+        if self.vulkan_json.len() == 0 {
+            return Result::<str, str>::Err("Vulkan probe unavailable");
+        }
+        Result::<str, str>::Ok(self.vulkan_json)
+    }
+}
+
+pub struct InMemoryOckhamAdapter {
+    pub seen: Set<str>,
+}
+
+impl InMemoryOckhamAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryOckhamAdapter {
+        InMemoryOckhamAdapter { seen: Set::<str>::new() }
+    }
+}
+
+impl OckhamEnginePort for InMemoryOckhamAdapter {
+    #[capabilities(pure)]
+    pub fn dedup_cache_check(&mut self, key: str) -> bool {
+        let was_present = self.seen.contains(key);
+        self.seen.insert(key);
+        was_present
+    }
+
+    #[capabilities(pure)]
+    pub fn quality_gate_evaluate(&self, payload: str) -> Result<str, str> {
+        let mut obj = json::object();
+        obj.set_bool("passed", payload.len() > 0);
+        obj.set_i64("bytes", payload.len());
+        Result::<str, str>::Ok(obj.stringify())
+    }
+}
+
+pub struct InMemoryRagtimeAdapter {
+    pub roots: Map<i64, str>,
+    pub next_mgr: i64,
+}
+
+impl InMemoryRagtimeAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryRagtimeAdapter {
+        InMemoryRagtimeAdapter { roots: Map::<i64, str>::new(), next_mgr: 1 }
+    }
+}
+
+impl RagtimeEnginePort for InMemoryRagtimeAdapter {
+    #[capabilities(pure)]
+    pub fn index_manager_new(&mut self, root: str) -> i64 {
+        let id = self.next_mgr;
+        self.next_mgr = self.next_mgr + 1;
+        self.roots.insert(id, root);
+        id
+    }
+
+    #[capabilities(pure)]
+    pub fn semantic_search_execute(&self, manager: i64, query: str) -> Result<str, str> {
+        if !self.roots.contains_key(manager) {
+            return Result::<str, str>::Err("Unknown Ragtime index manager");
+        }
+        Result::<str, str>::Ok("hits:" + query)
+    }
+}

@@ -1,0 +1,166 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Core command metadata and TelemetryEvent definitions (crates/protocol/src/commands.rs).
+
+#[derive(Copy, Json)]
+pub struct ChatMessage {
+    pub role: str,
+    pub content: str,
+}
+
+#[derive(Copy)]
+pub struct ModelBenchmarkInfo {
+    pub model_id: str,
+    pub provider: str,
+    pub tokens_per_second: Option<f64>,
+    pub quality_elo: Option<f64>,
+    pub input_cost_per_m: Option<f64>,
+    pub output_cost_per_m: Option<f64>,
+    pub context_window: Option<i64>,
+}
+
+#[derive(Copy)]
+pub struct CoreHealthPayload {
+    pub vram_used_gb: Option<f64>,
+    pub vram_total_gb: Option<f64>,
+    pub vram_available_gb: Option<f64>,
+    pub memory_lock_limit: Option<str>,
+    pub rag_initialized: bool,
+    pub indexed_chunks_count: i64,
+    pub total_ram_gb: f64,
+    pub used_ram_gb: f64,
+    pub cpu_cores: i64,
+    pub cpu_usage_pct: f64,
+    pub has_cuda: bool,
+    pub has_rocm: bool,
+    pub has_metal: bool,
+}
+
+#[derive(Copy)]
+pub struct SessionConfigMeta {
+    pub llm_id: Option<str>,
+    pub use_rag: Option<bool>,
+    pub auto_pilot: Option<bool>,
+    pub current_mode: Option<str>,
+}
+
+#[derive(Copy, Json)]
+pub struct SessionMeta {
+    pub id: str,
+    pub name: str,
+    pub status: str,
+    pub last_updated: i64,
+}
+
+#[derive(Copy)]
+pub struct LockTelemetry {
+    pub lock_id: str,
+    pub task_id: str,
+}
+
+#[derive(Copy)]
+pub struct ToolExecTelemetry {
+    pub tool_name: str,
+    pub detail: str,
+}
+
+#[derive(Copy)]
+pub struct PromptDispatchedTelemetry {
+    pub prompt: str,
+    pub model_id: str,
+    pub seed: i64,
+}
+
+#[derive(Copy)]
+pub struct LlmResponseStatsTelemetry {
+    pub tokens_generated: i64,
+    pub prompt_tokens: i64,
+    pub duration_ms: i64,
+}
+
+#[derive(Copy)]
+pub struct ModelLoadedTelemetry {
+    pub model_id: str,
+    pub vram_usage_mb: f64,
+}
+
+#[derive(Copy)]
+pub struct AdapterSwappedTelemetry {
+    pub adapter_id: str,
+    pub base_model: str,
+}
+
+#[derive(Copy)]
+pub struct OckhamCompressionTelemetry {
+    pub original_tokens: i64,
+    pub compressed_tokens: i64,
+    pub saved_tokens: i64,
+    pub cost_saved_usd: f64,
+}
+
+#[derive(Copy)]
+pub struct HardwareBackendTelemetry {
+    pub gpu_name: str,
+    pub backend: str,
+    pub is_native: bool,
+    pub features: str,
+    pub fallback_reason: Option<str>,
+}
+
+#[derive(Copy)]
+pub enum TelemetryEvent {
+    LockAcquiring(LockTelemetry),
+    LockAcquired(LockTelemetry),
+    ToolExecuting(ToolExecTelemetry),
+    ToolExecuted(ToolExecTelemetry),
+    PromptDispatched(PromptDispatchedTelemetry),
+    LLMResponseStats(LlmResponseStatsTelemetry),
+    ModelLoaded(ModelLoadedTelemetry),
+    AiAdapterSwapped(AdapterSwappedTelemetry),
+    OckhamCompressionStats(OckhamCompressionTelemetry),
+    HardwareBackendSelected(HardwareBackendTelemetry),
+}
+
+#[capabilities(pure)]
+pub fn telemetry_event_kind(ev: TelemetryEvent) -> str {
+    match ev {
+        TelemetryEvent::LockAcquiring(_p) => "LockAcquiring",
+        TelemetryEvent::LockAcquired(_p) => "LockAcquired",
+        TelemetryEvent::ToolExecuting(_p) => "ToolExecuting",
+        TelemetryEvent::ToolExecuted(_p) => "ToolExecuted",
+        TelemetryEvent::PromptDispatched(_p) => "PromptDispatched",
+        TelemetryEvent::LLMResponseStats(_p) => "LLMResponseStats",
+        TelemetryEvent::ModelLoaded(_p) => "ModelLoaded",
+        TelemetryEvent::AiAdapterSwapped(_p) => "AiAdapterSwapped",
+        TelemetryEvent::OckhamCompressionStats(_p) => "OckhamCompressionStats",
+        TelemetryEvent::HardwareBackendSelected(_p) => "HardwareBackendSelected",
+    }
+}
+
+pub struct ChatMessageList {
+    pub items: Vec<ChatMessage>,
+}
+
+impl ChatMessageList {
+    #[capabilities(pure)]
+    pub fn new() -> ChatMessageList {
+        ChatMessageList { items: Vec::<ChatMessage>::new() }
+    }
+
+    #[capabilities(pure)]
+    pub fn push(&mut self, msg: ChatMessage) {
+        self.items.push(msg);
+    }
+
+    #[capabilities(pure)]
+    pub fn encode_json(&self) -> str {
+        let mut arr = json::array();
+        let mut i: i64 = 0;
+        while i < self.items.len() {
+            let m = self.items.get(i);
+            let obj = json::parse(m.to_json());
+            arr.push_json(obj);
+            i = i + 1;
+        }
+        arr.stringify()
+    }
+}

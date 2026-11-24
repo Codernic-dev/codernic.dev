@@ -1,3 +1,5 @@
+# DEPRECATED: Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.
+# DEPRECATED (Rust Legacy): Canonical sovereign implementation lives in ./helonium/ (Helonium v2.0). Retained for compatibility only.
 [workspace]
 members = [
     "crates/protocol",
@@ -15,3 +17,7 @@ anyhow = "1.0"
 tracing = "0.1"
 jsonschema = "0.18"
 thiserror = "1.0"
+
+[workspace.metadata.codernic]
+rust_status = "deprecated"
+helonium_canonical = "helonium/"

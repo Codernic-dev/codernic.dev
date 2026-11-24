@@ -1,0 +1,97 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Tauri desktop manager service (apps/codernic-ui/src-tauri/src/lib.rs & git_engine.rs).
+
+use ports::ui_chassis_ports::*;
+
+pub service CodernicManagerService {
+    inject git: &mut GitEnginePort,
+    inject daemon: &mut DaemonRuntimePort,
+    inject vault: &mut ConfigVaultPort,
+}
+
+impl CodernicManagerService {
+    #[capabilities(pure)]
+    pub fn get_daemon_status(&self, port: i64) -> str
+        requires port > 0
+    {
+        let mut obj = json::object();
+        obj.set_bool("isRunning", self.daemon.get_daemon_status(port));
+        obj.stringify()
+    }
+
+    #[capabilities(pure)]
+    pub fn start_daemon(&mut self, port: i64) -> Result<bool, str>
+        requires port > 0
+    {
+        self.daemon.start_daemon(port)
+    }
+
+    #[capabilities(pure)]
+    pub fn stop_daemon(&mut self) -> Result<bool, str> {
+        self.daemon.stop_daemon()
+    }
+
+    #[capabilities(pure)]
+    pub fn get_global_config(&self) -> Result<str, str> {
+        self.vault.get_global_config()
+    }
+
+    #[capabilities(pure)]
+    pub fn save_global_config(&mut self, yaml: str) -> Result<bool, str>
+        requires yaml.len() > 0
+    {
+        self.vault.save_global_config(yaml)
+    }
+
+    #[capabilities(pure)]
+    pub fn factory_reset(&mut self) -> Result<bool, str> {
+        self.vault.factory_reset()
+    }
+
+    #[capabilities(pure)]
+    pub fn get_license_status(&self, now_ts: i64) -> LicenseStatusPayload
+        requires now_ts >= 0
+    {
+        self.vault.get_license_status(now_ts)
+    }
+
+    #[capabilities(pure)]
+    pub fn set_license(&mut self, key: Secret<str>) -> Result<bool, str> {
+        self.vault.set_license(key)
+    }
+
+    #[capabilities(pure)]
+    pub fn generate_ssrm(&mut self, model_id: str, owner: str) -> Result<str, str>
+        requires model_id.len() > 0 && owner.len() > 0
+    {
+        self.vault.generate_ssrm(model_id, owner)
+    }
+
+    #[capabilities(pure)]
+    pub fn get_telemetry_stats(&self, port: i64) -> TelemetryStatsPayload
+        requires port > 0
+    {
+        self.daemon.get_telemetry_stats(port)
+    }
+
+    #[capabilities(pure)]
+    pub fn git_status(&self, repo_path: str) -> Result<Vec<GitFileStatus>, str>
+        requires repo_path.len() > 0
+    {
+        self.git.get_status(repo_path)
+    }
+
+    #[capabilities(pure)]
+    pub fn git_branch_list(&self, repo_path: str) -> Result<Vec<GitBranchInfo>, str>
+        requires repo_path.len() > 0
+    {
+        self.git.get_branches(repo_path)
+    }
+
+    #[capabilities(pure)]
+    pub fn git_commit(&mut self, repo_path: str, message: str) -> Result<str, str>
+        requires repo_path.len() > 0 && message.len() > 0
+    {
+        self.git.commit(repo_path, message)
+    }
+}

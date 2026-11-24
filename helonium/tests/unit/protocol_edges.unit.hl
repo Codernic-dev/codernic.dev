@@ -1,0 +1,64 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+use domain::protocol_dag_config::*;
+use domain::protocol_models::*;
+use domain::protocol_erathos::*;
+use domain::protocol_cmd_types::*;
+use domain::protocol_cmd_req_payloads::*;
+use domain::protocol_cmd_requests::*;
+use domain::protocol_cmd_resp_payloads::*;
+use domain::protocol_cmd_responses::*;
+use adapters::memory_protocol_adapters::*;
+use mocks::protocol_chassis::*;
+use protocol_dag::AgentParadigm;
+
+#[test]
+#[capabilities(pure)]
+fn test_command_request_and_response_all_chunks() {
+    let r_b = CommandRequest::ResolveToolApproval(ToolApprovalPayload { request_id: "r1", approved: true });
+    let r_c = CommandRequest::StoreSecret(StoreSecretPayload { key: "k", secret: argon::secret_env("S") });
+    let r_d = CommandRequest::GetCloudModels;
+    assert_eq(command_request_tag(r_b), "ResolveToolApproval");
+    assert_eq(command_request_tag(r_c), "StoreSecret");
+    assert_eq(command_request_tag(r_d), "GetCloudModels");
+
+    let rs_a = CommandResponse::IndexingDone;
+    let rs_b = CommandResponse::Version(VersionPayload { version: "0.6.482", pid: 42 });
+    let rs_c = CommandResponse::SessionDeleted("s1");
+    let rs_d = CommandResponse::HfdDone;
+    assert_eq(command_response_tag(rs_a), "IndexingDone");
+    assert_eq(command_response_tag(rs_b), "Version");
+    assert_eq(command_response_tag(rs_c), "SessionDeleted");
+    assert_eq(command_response_tag(rs_d), "HfdDone");
+}
+
+#[test]
+#[capabilities(pure)]
+fn test_validation_error_branches() {
+    let mut cfg = DagConfig::new("bad-dag");
+    let l1 = LaneNodeRow {
+        id: "a", agent_file: "a.md", supervisor_file: Option::<str>::None,
+        paradigm: Option::<AgentParadigm>::Some(AgentParadigm::Supervisor),
+        skill: Option::<str>::None, input_context_json: Option::<str>::None, metadata_json: Option::<str>::None,
+    };
+    assert_eq(cfg.add_lane(l1).is_ok(), true);
+    cfg.deps.push(LaneDepEdge { lane_id: "a", depends_on: "a" });
+    assert_eq(cfg.validate().is_err(), true);
+
+    let mock_files = MockFilePresence { allow_all: false };
+    let msvc = ModelValidationService::wire(&mock_files);
+    let mut w = Vec::<str>::new();
+    w.push("weights.safetensors");
+    let def = LocalModelDefinition {
+        model_id: "m", weights_paths: w, config_path: "cfg.json", tokenizer_path: "tok.json",
+        context_window: 2048, gpu_layers: Option::<i64>::None, use_mlock: Option::<bool>::None,
+    };
+    assert_eq(msvc.validate(&def).is_err(), true);
+
+    let mut reg = InMemoryTemplateRegistry::new();
+    reg.register("node", "{\"required_csv\":\"role\"}");
+    let mut ents = Vec::<ErathosEntity>::new();
+    ents.push(ErathosEntity { id: "e1", name: "n", template_id: "node", status: EntityStatus::InProgress, progress: 50, properties_json: "{}" });
+    let contract = ErathosSchemaContract { schema_id: "s", description: Option::<str>::None, entities: ents, links: Vec::<ErathosLink>::new() };
+    let esvc = ErathosValidatorService::wire(&reg);
+    assert_eq(esvc.validate(&contract).is_err(), true);
+}

@@ -1,0 +1,149 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Supervisor decisions, local model definition, hyperparams, and inference events (models.rs + transport::ConfigError).
+
+use ports::file_probe::FilePresencePort;
+
+#[derive(Copy)]
+pub enum ConfigError {
+    FileNotFound(str),
+    InvalidConfiguration(str),
+}
+
+#[capabilities(pure)]
+pub fn config_error_message(err: ConfigError) -> str {
+    match err {
+        ConfigError::FileNotFound(p) => "Required file not found on disk: " + p,
+        ConfigError::InvalidConfiguration(msg) => "Invalid configuration: " + msg,
+    }
+}
+
+#[derive(Copy)]
+pub enum SupervisorDecision {
+    Continue,
+    InjectContext(str),
+    CircuitBreak(str),
+}
+
+#[derive(Copy)]
+pub enum SupervisorMode {
+    Permissive,
+    Attentive,
+    Deterministic,
+}
+
+#[derive(Copy)]
+pub struct SupervisorConfig {
+    pub mode: SupervisorMode,
+    pub max_iteration_buffer: i64,
+    pub health_check_frequency: i64,
+}
+
+#[derive(Copy)]
+pub enum ModelFormat {
+    Safetensors,
+    Gguf,
+}
+
+pub struct LocalModelDefinition {
+    pub model_id: str,
+    pub weights_paths: Vec<str>,
+    pub config_path: str,
+    pub tokenizer_path: str,
+    pub context_window: i64,
+    pub gpu_layers: Option<i64>,
+    pub use_mlock: Option<bool>,
+}
+
+pub struct InferenceHyperparams {
+    pub temperature: Option<f64>,
+    pub top_p: Option<f64>,
+    pub max_tokens: i64,
+    pub json_schema: Option<str>,
+    pub gbnf_grammar: Option<str>,
+    pub stop_sequences: Vec<str>,
+    pub chat_template: Option<str>,
+}
+
+#[derive(Copy)]
+pub struct InferenceMetrics {
+    pub ttft_ms: i64,
+    pub tokens_per_second: f64,
+    pub vram_allocated_bytes: i64,
+    pub context_tokens_count: i64,
+}
+
+#[derive(Copy)]
+pub enum InferenceEvent {
+    Token(str),
+    Metrics(InferenceMetrics),
+    Error(str),
+}
+
+impl LocalModelDefinition {
+    #[capabilities(pure)]
+    pub fn format(&self) -> ModelFormat {
+        let mut i: i64 = 0;
+        while i < self.weights_paths.len() {
+            if regex::is_match("\\.gguf$", self.weights_paths.get(i)) {
+                return ModelFormat::Gguf;
+            }
+            i = i + 1;
+        }
+        ModelFormat::Safetensors
+    }
+}
+
+pub service ModelValidationService {
+    inject files: &FilePresencePort,
+}
+
+impl ModelValidationService {
+    #[capabilities(pure)]
+    pub fn validate(&self, def: &LocalModelDefinition) -> Result<bool, ConfigError> {
+        if def.weights_paths.len() == 0 {
+            return Result::<bool, ConfigError>::Err(ConfigError::InvalidConfiguration("No weights paths provided"));
+        }
+        let mut i: i64 = 0;
+        while i < def.weights_paths.len() {
+            let wp = def.weights_paths.get(i);
+            if !self.files.file_exists(wp) {
+                return Result::<bool, ConfigError>::Err(ConfigError::FileNotFound(wp));
+            }
+            i = i + 1;
+        }
+        let is_safe = match def.format() {
+            ModelFormat::Safetensors => true,
+            ModelFormat::Gguf => false,
+        };
+        if is_safe {
+            if !self.files.file_exists(def.config_path) {
+                return Result::<bool, ConfigError>::Err(ConfigError::FileNotFound(def.config_path));
+            }
+            if !self.files.file_exists(def.tokenizer_path) {
+                return Result::<bool, ConfigError>::Err(ConfigError::FileNotFound(def.tokenizer_path));
+            }
+        }
+        if def.context_window <= 0 {
+            return Result::<bool, ConfigError>::Err(ConfigError::InvalidConfiguration("Context window must be strictly greater than 0"));
+        }
+        Result::<bool, ConfigError>::Ok(true)
+    }
+}
+
+#[capabilities(pure)]
+pub fn supervisor_decision_label(d: SupervisorDecision) -> str {
+    match d {
+        SupervisorDecision::Continue => "Continue",
+        SupervisorDecision::InjectContext(c) => "InjectContext:" + c,
+        SupervisorDecision::CircuitBreak(r) => "CircuitBreak:" + r,
+    }
+}
+
+#[capabilities(pure)]
+pub fn inference_event_label(ev: InferenceEvent) -> str {
+    match ev {
+        InferenceEvent::Token(t) => "Token:" + t,
+        InferenceEvent::Metrics(_m) => "Metrics",
+        InferenceEvent::Error(e) => "Error:" + e,
+    }
+}

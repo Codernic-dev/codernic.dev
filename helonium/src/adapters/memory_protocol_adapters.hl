@@ -1,0 +1,125 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Production in-memory adapters for protocol template, file probe, transport, and Pirsig HMAC auth.
+
+use ports::template_resolver::TemplateResolverPort;
+use ports::file_probe::FilePresencePort;
+use ports::transport_port::TransportPort;
+use ports::pirsig_auth::PirsigAuthPort;
+use domain::pirsig_protocol::*;
+
+pub struct InMemoryTemplateRegistry {
+    pub templates: Map<str, str>,
+}
+
+impl InMemoryTemplateRegistry {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryTemplateRegistry {
+        InMemoryTemplateRegistry { templates: Map::<str, str>::new() }
+    }
+
+    #[capabilities(pure)]
+    pub fn register(&mut self, template_id: str, schema_json: str) {
+        self.templates.insert(template_id, schema_json);
+    }
+}
+
+impl TemplateResolverPort for InMemoryTemplateRegistry {
+    #[capabilities(pure)]
+    pub fn resolve_template(&self, template_id: str) -> Option<str> {
+        self.templates.get(template_id)
+    }
+}
+
+pub struct InMemoryFilePresenceAdapter {
+    pub files: Set<str>,
+}
+
+impl InMemoryFilePresenceAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryFilePresenceAdapter {
+        InMemoryFilePresenceAdapter { files: Set::<str>::new() }
+    }
+
+    #[capabilities(pure)]
+    pub fn register_file(&mut self, path: str) {
+        self.files.insert(path);
+    }
+}
+
+impl FilePresencePort for InMemoryFilePresenceAdapter {
+    #[capabilities(pure)]
+    pub fn file_exists(&self, path: str) -> bool {
+        self.files.contains(path)
+    }
+}
+
+pub struct InMemoryInterprocessTransport {
+    pub requests: Vec<str>,
+    pub responses: Vec<str>,
+}
+
+impl InMemoryInterprocessTransport {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryInterprocessTransport {
+        InMemoryInterprocessTransport {
+            requests: Vec::<str>::new(),
+            responses: Vec::<str>::new(),
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn last_request(&self) -> str {
+        let n = self.requests.len();
+        if n == 0 { return ""; }
+        self.requests.get(n - 1)
+    }
+
+    #[capabilities(pure)]
+    pub fn last_response(&self) -> str {
+        let n = self.responses.len();
+        if n == 0 { return ""; }
+        self.responses.get(n - 1)
+    }
+}
+
+impl TransportPort for InMemoryInterprocessTransport {
+    #[capabilities(pure)]
+    pub fn send_request_line(&mut self, json_line: str) -> Result<i64, str> {
+        self.requests.push(json_line);
+        Result::<i64, str>::Ok(self.requests.len())
+    }
+
+    #[capabilities(pure)]
+    pub fn send_response_line(&mut self, json_line: str) -> Result<i64, str> {
+        self.responses.push(json_line);
+        Result::<i64, str>::Ok(self.responses.len())
+    }
+
+    #[capabilities(pure)]
+    pub fn total_frames(&self) -> i64 {
+        self.requests.len() + self.responses.len()
+    }
+}
+
+pub struct HmacPirsigAuthAdapter {
+    pub protocol_tag: str,
+}
+
+impl HmacPirsigAuthAdapter {
+    #[capabilities(pure)]
+    pub fn new() -> HmacPirsigAuthAdapter {
+        HmacPirsigAuthAdapter { protocol_tag: "pirsig-hmac-sha256-v1" }
+    }
+}
+
+impl PirsigAuthPort for HmacPirsigAuthAdapter {
+    #[capabilities(pure)]
+    pub fn sign_challenge(&self, secret: Secret<str>, nonce: str) -> str {
+        compute_sig(secret, nonce)
+    }
+
+    #[capabilities(pure)]
+    pub fn verify_challenge(&self, secret: Secret<str>, nonce: str, sig: str) -> bool {
+        verify_sig(secret, nonce, sig)
+    }
+}

@@ -1,0 +1,7 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Template schema resolution port for Erathos schema validation.
+
+pub port TemplateResolverPort {
+    fn resolve_template(&self, template_id: str) -> Option<str>
+        requires template_id.len() > 0;
+}

@@ -1,0 +1,73 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Unified client orchestrating the 5 engine VTable ports (deming, galileus, hw_probe, ockham, ragtime).
+
+use ports::engine_vtables::*;
+
+pub service EngineVTableService {
+    inject deming: &mut DemingEnginePort,
+    inject galileus: &mut GalileusEnginePort,
+    inject hw_probe: &HwProbePort,
+    inject ockham: &mut OckhamEnginePort,
+    inject ragtime: &mut RagtimeEnginePort,
+}
+
+#[derive(Copy)]
+pub struct VTableDiagnosticSummary {
+    pub gguf_version: i64,
+    pub tensor_count: i64,
+    pub backend: str,
+    pub strategy_ok: bool,
+    pub dag_result: str,
+    pub vulkan_caps: str,
+    pub dedup_seen: bool,
+    pub quality_report: str,
+    pub rag_hits: str,
+}
+
+impl EngineVTableService {
+    #[capabilities(pure)]
+    pub fn run_deming_probe(&mut self, model_path: str, pref: str, elems: i64) -> Result<VTableDiagnosticSummary, str>
+        requires model_path.len() > 0 && pref.len() > 0 && elems > 0
+    {
+        let gguf = self.deming.gguf_parse(model_path)?;
+        let ctx = self.deming.gpu_context_build(pref)?;
+        let _buf = self.deming.memory_alloc_f32(ctx, elems)?;
+        let ok = self.deming.strategy_execute(ctx, elems);
+        let vk = self.hw_probe.get_vulkan_capabilities()?;
+        Result::<VTableDiagnosticSummary, str>::Ok(VTableDiagnosticSummary {
+            gguf_version: self.deming.gguf_version(gguf),
+            tensor_count: self.deming.gguf_tensor_count(gguf),
+            backend: self.deming.gpu_context_backend_type(ctx),
+            strategy_ok: ok,
+            dag_result: "",
+            vulkan_caps: vk,
+            dedup_seen: false,
+            quality_report: "",
+            rag_hits: "",
+        })
+    }
+
+    #[capabilities(pure)]
+    pub fn run_orchestration_probe(&mut self, dag_name: str, root: str, query: str) -> Result<VTableDiagnosticSummary, str>
+        requires dag_name.len() > 0 && root.len() > 0 && query.len() > 0
+    {
+        let b = self.galileus.dag_builder_new(dag_name);
+        let _added = self.galileus.dag_builder_add_node(b, "n1", "analyze");
+        let dag_out = self.galileus.node_runner_execute(b)?;
+        let dedup = self.ockham.dedup_cache_check(query);
+        let qual = self.ockham.quality_gate_evaluate(dag_out)?;
+        let mgr = self.ragtime.index_manager_new(root);
+        let hits = self.ragtime.semantic_search_execute(mgr, query)?;
+        Result::<VTableDiagnosticSummary, str>::Ok(VTableDiagnosticSummary {
+            gguf_version: 0,
+            tensor_count: 0,
+            backend: ffi_backend_name(FfiBackendType::Cpu),
+            strategy_ok: true,
+            dag_result: dag_out,
+            vulkan_caps: "",
+            dedup_seen: dedup,
+            quality_report: qual,
+            rag_hits: hits,
+        })
+    }
+}

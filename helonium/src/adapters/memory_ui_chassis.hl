@@ -1,0 +1,195 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Production in-memory adapters for Codernic UI Tauri chassis ports.
+
+use ports::ui_chassis_ports::*;
+
+pub struct InMemoryGitEngine {
+    pub files: Vec<GitFileStatus>,
+    pub branches: Vec<GitBranchInfo>,
+    pub commit_seq: i64,
+}
+
+impl InMemoryGitEngine {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryGitEngine {
+        let mut branches = Vec::<GitBranchInfo>::new();
+        branches.push(GitBranchInfo { name: "main", is_head: true });
+        InMemoryGitEngine {
+            files: Vec::<GitFileStatus>::new(),
+            branches,
+            commit_seq: 0,
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn track_file(&mut self, path: str, status: str) {
+        self.files.push(GitFileStatus { path, status });
+    }
+}
+
+impl GitEnginePort for InMemoryGitEngine {
+    #[capabilities(pure)]
+    pub fn get_status(&self, repo_path: str) -> Result<Vec<GitFileStatus>, str> {
+        if repo_path == "missing" {
+            return Result::<Vec<GitFileStatus>, str>::Err("Failed to open repo");
+        }
+        let mut out = Vec::<GitFileStatus>::new();
+        let mut i: i64 = 0;
+        while i < self.files.len() {
+            out.push(self.files.get(i));
+            i = i + 1;
+        }
+        Result::<Vec<GitFileStatus>, str>::Ok(out)
+    }
+
+    #[capabilities(pure)]
+    pub fn get_branches(&self, repo_path: str) -> Result<Vec<GitBranchInfo>, str> {
+        if repo_path == "missing" {
+            return Result::<Vec<GitBranchInfo>, str>::Err("Failed to open repo");
+        }
+        let mut out = Vec::<GitBranchInfo>::new();
+        let mut i: i64 = 0;
+        while i < self.branches.len() {
+            out.push(self.branches.get(i));
+            i = i + 1;
+        }
+        Result::<Vec<GitBranchInfo>, str>::Ok(out)
+    }
+
+    #[capabilities(pure)]
+    pub fn commit(&mut self, _repo_path: str, message: str) -> Result<str, str> {
+        self.commit_seq = self.commit_seq + 1;
+        let payload = Bytes::from_str(message + ":" + to_str(self.commit_seq));
+        let digest = crypto::blake3(&payload);
+        self.files.clear();
+        Result::<str, str>::Ok(digest.to_hex())
+    }
+}
+
+pub struct InMemoryDaemonRuntime {
+    pub active_port: i64,
+    pub running: bool,
+    pub pii_interceptions: i64,
+    pub tokens_saved_percent: f64,
+    pub blocked_requests: i64,
+}
+
+impl InMemoryDaemonRuntime {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryDaemonRuntime {
+        InMemoryDaemonRuntime {
+            active_port: 49152,
+            running: false,
+            pii_interceptions: 0,
+            tokens_saved_percent: 0.0,
+            blocked_requests: 0,
+        }
+    }
+}
+
+impl DaemonRuntimePort for InMemoryDaemonRuntime {
+    #[capabilities(pure)]
+    pub fn get_daemon_status(&self, port: i64) -> bool {
+        self.running && self.active_port == port
+    }
+
+    #[capabilities(pure)]
+    pub fn start_daemon(&mut self, port: i64) -> Result<bool, str> {
+        self.active_port = port;
+        self.running = true;
+        Result::<bool, str>::Ok(true)
+    }
+
+    #[capabilities(pure)]
+    pub fn stop_daemon(&mut self) -> Result<bool, str> {
+        let was_running = self.running;
+        self.running = false;
+        Result::<bool, str>::Ok(was_running)
+    }
+
+    #[capabilities(pure)]
+    pub fn get_telemetry_stats(&self, port: i64) -> TelemetryStatsPayload {
+        if !self.running || self.active_port != port {
+            return TelemetryStatsPayload { pii_interceptions: 0, tokens_saved_percent: 0.0, blocked_requests: 0 };
+        }
+        TelemetryStatsPayload {
+            pii_interceptions: self.pii_interceptions,
+            tokens_saved_percent: self.tokens_saved_percent,
+            blocked_requests: self.blocked_requests,
+        }
+    }
+}
+
+pub struct InMemoryConfigVault {
+    pub config_yaml: str,
+    pub license_tier: str,
+    pub license_issued: i64,
+    pub license_expires: i64,
+}
+
+impl InMemoryConfigVault {
+    #[capabilities(pure)]
+    pub fn new() -> InMemoryConfigVault {
+        InMemoryConfigVault {
+            config_yaml: "bind_address: \"0.0.0.0:49152\"\n",
+            license_tier: "Free",
+            license_issued: 0,
+            license_expires: 0,
+        }
+    }
+}
+
+impl ConfigVaultPort for InMemoryConfigVault {
+    #[capabilities(pure)]
+    pub fn get_global_config(&self) -> Result<str, str> {
+        Result::<str, str>::Ok(self.config_yaml)
+    }
+
+    #[capabilities(pure)]
+    pub fn save_global_config(&mut self, yaml: str) -> Result<bool, str> {
+        self.config_yaml = yaml;
+        Result::<bool, str>::Ok(true)
+    }
+
+    #[capabilities(pure)]
+    pub fn factory_reset(&mut self) -> Result<bool, str> {
+        self.config_yaml = "bind_address: \"0.0.0.0:49152\"\n";
+        self.license_tier = "Free";
+        self.license_issued = 0;
+        self.license_expires = 0;
+        Result::<bool, str>::Ok(true)
+    }
+
+    #[capabilities(pure)]
+    pub fn get_license_status(&self, now_ts: i64) -> LicenseStatusPayload {
+        let mut mods = Vec::<str>::new();
+        mods.push("core");
+        LicenseStatusPayload {
+            tier: self.license_tier,
+            issued_at: self.license_issued,
+            expires_at: self.license_expires,
+            is_active: now_ts <= self.license_expires && self.license_expires > 0,
+            modules: mods,
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn set_license(&mut self, key: Secret<str>) -> Result<bool, str> {
+        let raw = key.expose_for_auth();
+        if raw.len() > 0 && !raw.contains(".") {
+            return Result::<bool, str>::Err("Invalid license token");
+        }
+        self.license_tier = "Production";
+        self.license_issued = 1000;
+        self.license_expires = 9999999999;
+        Result::<bool, str>::Ok(true)
+    }
+
+    #[capabilities(pure)]
+    pub fn generate_ssrm(&mut self, model_id: str, owner: str) -> Result<str, str> {
+        let mut obj = json::object();
+        obj.set_str("model_id", model_id);
+        obj.set_str("owner", owner);
+        Result::<str, str>::Ok(model_id + ".ssrm:" + obj.stringify())
+    }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "https://codernic.dev/schemas/cpk-v1.json",
+  "name": "@codernic/codernic-dev",
+  "version": "0.1.0",
+  "package_type": "software-package",
+  "authors": [
+    "Codernic AI Engineering"
+  ],
+  "license": "Proprietary",
+  "layers": {
+    "helonium": {
+      "language": "helonium",
+      "entry": "helonium/src/protocol_dag.hl",
+      "kind": "source"
+    },
+    "tauri_backend": {
+      "language": "rust",
+      "entry": "apps/codernic-ui/src-tauri/Cargo.toml",
+      "kind": "source",
+      "deprecated": true,
+      "deprecation_notice": "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained."
+    },
+    "pirsig_protocol": {
+      "language": "rust",
+      "entry": "crates/b2b/pirsig-protocol/Cargo.toml",
+      "kind": "source",
+      "deprecated": true,
+      "deprecation_notice": "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained."
+    },
+    "protocol": {
+      "language": "rust",
+      "entry": "crates/protocol/Cargo.toml",
+      "kind": "source",
+      "deprecated": true,
+      "deprecation_notice": "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained."
+    }
+  }
+}

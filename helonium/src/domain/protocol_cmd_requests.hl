@@ -1,0 +1,123 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Full CommandRequest enum (37 variants) mirroring crates/protocol/src/commands.rs.
+
+use domain::protocol_cmd_req_payloads::*;
+
+#[derive(Copy)]
+pub enum CommandRequest {
+    ExecuteAsk(ExecuteAskPayload),
+    GetSessions(Option<str>),
+    LoadSession(SessionTargetPayload),
+    RenameSession(SessionTargetPayload),
+    DeleteSession(SessionTargetPayload),
+    UpdateSessionConfig(UpdateSessionConfigPayload),
+    UpdateSessionSchema(UpdateSessionSchemaPayload),
+    GetAsset(AssetTransferPayload),
+    SaveAsset(AssetTransferPayload),
+    SaveLlmSecret(SaveLlmSecretPayload),
+    ResolveToolApproval(ToolApprovalPayload),
+    GeneratePlan(GeneratePlanPayload),
+    ExecuteDag(ExecuteDagPayload),
+    AnalyzeAst(str),
+    AnalyzeProject(Option<str>),
+    StartIndexing(IndexingRequestPayload),
+    DownloadModel(DownloadModelPayload),
+    GetMetrics,
+    GetStatus,
+    GetHealth,
+    GetVersion,
+    Shutdown,
+    Abort(str),
+    Chat(ChatCommandPayload),
+    Freeze(SessionTargetPayload),
+    CancelFreeze(SessionTargetPayload),
+    Implement(SessionTargetPayload),
+    StoreSecret(StoreSecretPayload),
+    SyncAggregatorModels(Option<str>),
+    GetModelBenchmarks(ModelBenchmarksQuery),
+    GetCloudModels,
+    AddCloudModel(AddCloudModelPayload),
+    DeleteModel(DeleteModelPayload),
+    OckhamCompressContext(OckhamCompressPayload),
+    OckhamSyncCatalog(Option<str>),
+    OckhamSearchModels(OckhamSearchPayload),
+    Ping,
+}
+
+#[capabilities(pure)]
+fn cmd_req_tag_a(req: CommandRequest) -> str {
+    match req {
+        CommandRequest::ExecuteAsk(_p) => "ExecuteAsk",
+        CommandRequest::GetSessions(_p) => "GetSessions",
+        CommandRequest::LoadSession(_p) => "LoadSession",
+        CommandRequest::RenameSession(_p) => "RenameSession",
+        CommandRequest::DeleteSession(_p) => "DeleteSession",
+        CommandRequest::UpdateSessionConfig(_p) => "UpdateSessionConfig",
+        CommandRequest::UpdateSessionSchema(_p) => "UpdateSessionSchema",
+        CommandRequest::GetAsset(_p) => "GetAsset",
+        CommandRequest::SaveAsset(_p) => "SaveAsset",
+        CommandRequest::SaveLlmSecret(_p) => "SaveLlmSecret",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_req_tag_b(req: CommandRequest) -> str {
+    match req {
+        CommandRequest::ResolveToolApproval(_p) => "ResolveToolApproval",
+        CommandRequest::GeneratePlan(_p) => "GeneratePlan",
+        CommandRequest::ExecuteDag(_p) => "ExecuteDag",
+        CommandRequest::AnalyzeAst(_p) => "AnalyzeAst",
+        CommandRequest::AnalyzeProject(_p) => "AnalyzeProject",
+        CommandRequest::StartIndexing(_p) => "StartIndexing",
+        CommandRequest::DownloadModel(_p) => "DownloadModel",
+        CommandRequest::GetMetrics => "GetMetrics",
+        CommandRequest::GetStatus => "GetStatus",
+        CommandRequest::GetHealth => "GetHealth",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_req_tag_c(req: CommandRequest) -> str {
+    match req {
+        CommandRequest::GetVersion => "GetVersion",
+        CommandRequest::Shutdown => "Shutdown",
+        CommandRequest::Abort(_p) => "Abort",
+        CommandRequest::Chat(_p) => "Chat",
+        CommandRequest::Freeze(_p) => "Freeze",
+        CommandRequest::CancelFreeze(_p) => "CancelFreeze",
+        CommandRequest::Implement(_p) => "Implement",
+        CommandRequest::StoreSecret(_p) => "StoreSecret",
+        CommandRequest::SyncAggregatorModels(_p) => "SyncAggregatorModels",
+        CommandRequest::GetModelBenchmarks(_p) => "GetModelBenchmarks",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_req_tag_d(req: CommandRequest) -> str {
+    match req {
+        CommandRequest::GetCloudModels => "GetCloudModels",
+        CommandRequest::AddCloudModel(_p) => "AddCloudModel",
+        CommandRequest::DeleteModel(_p) => "DeleteModel",
+        CommandRequest::OckhamCompressContext(_p) => "OckhamCompressContext",
+        CommandRequest::OckhamSyncCatalog(_p) => "OckhamSyncCatalog",
+        CommandRequest::OckhamSearchModels(_p) => "OckhamSearchModels",
+        CommandRequest::Ping => "Ping",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+pub fn command_request_tag(req: CommandRequest) -> str {
+    let a = cmd_req_tag_a(req);
+    if a.len() > 0 { return a; }
+    let b = cmd_req_tag_b(req);
+    if b.len() > 0 { return b; }
+    let c = cmd_req_tag_c(req);
+    if c.len() > 0 { return c; }
+    let d = cmd_req_tag_d(req);
+    if d.len() > 0 { return d; }
+    "Unknown"
+}

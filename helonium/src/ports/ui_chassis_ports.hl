@@ -1,0 +1,55 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Ports for apps/codernic-ui/src-tauri (git_engine + Tauri command runtime).
+
+#[derive(Copy, Json)]
+pub struct GitFileStatus {
+    pub path: str,
+    pub status: str,
+}
+
+#[derive(Copy, Json)]
+pub struct GitBranchInfo {
+    pub name: str,
+    pub is_head: bool,
+}
+
+pub struct LicenseStatusPayload {
+    pub tier: str,
+    pub issued_at: i64,
+    pub expires_at: i64,
+    pub is_active: bool,
+    pub modules: Vec<str>,
+}
+
+#[derive(Copy, Json)]
+pub struct TelemetryStatsPayload {
+    pub pii_interceptions: i64,
+    pub tokens_saved_percent: f64,
+    pub blocked_requests: i64,
+}
+
+pub port GitEnginePort {
+    fn get_status(&self, repo_path: str) -> Result<Vec<GitFileStatus>, str>
+        requires repo_path.len() > 0;
+    fn get_branches(&self, repo_path: str) -> Result<Vec<GitBranchInfo>, str>
+        requires repo_path.len() > 0;
+    fn commit(&mut self, repo_path: str, message: str) -> Result<str, str>
+        requires repo_path.len() > 0 && message.len() > 0;
+}
+
+pub port DaemonRuntimePort {
+    fn get_daemon_status(&self, port: i64) -> bool requires port > 0;
+    fn start_daemon(&mut self, port: i64) -> Result<bool, str> requires port > 0;
+    fn stop_daemon(&mut self) -> Result<bool, str>;
+    fn get_telemetry_stats(&self, port: i64) -> TelemetryStatsPayload requires port > 0;
+}
+
+pub port ConfigVaultPort {
+    fn get_global_config(&self) -> Result<str, str>;
+    fn save_global_config(&mut self, yaml: str) -> Result<bool, str> requires yaml.len() > 0;
+    fn factory_reset(&mut self) -> Result<bool, str>;
+    fn get_license_status(&self, now_ts: i64) -> LicenseStatusPayload requires now_ts >= 0;
+    fn set_license(&mut self, key: Secret<str>) -> Result<bool, str>;
+    fn generate_ssrm(&mut self, model_id: str, owner: str) -> Result<str, str>
+        requires model_id.len() > 0 && owner.len() > 0;
+}

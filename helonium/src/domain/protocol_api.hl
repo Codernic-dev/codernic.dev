@@ -1,0 +1,43 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Unified API result wrapper mirroring codernic_protocol::api.
+
+pub struct UnifiedResult {
+    pub success: bool,
+    pub data: Option<str>,
+    pub error: Option<str>,
+}
+
+impl UnifiedResult {
+    #[capabilities(pure)]
+    pub fn success(data: str) -> UnifiedResult {
+        UnifiedResult {
+            success: true,
+            data: Option::<str>::Some(data),
+            error: Option::<str>::None,
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn error(msg: str) -> UnifiedResult {
+        UnifiedResult {
+            success: false,
+            data: Option::<str>::None,
+            error: Option::<str>::Some(msg),
+        }
+    }
+
+    #[capabilities(pure)]
+    pub fn to_json(&self) -> str {
+        let mut obj = json::object();
+        obj.set_bool("success", self.success);
+        match self.data {
+            Option::Some(d) => obj.set_str("data", d),
+            Option::None => {}
+        }
+        match self.error {
+            Option::Some(e) => obj.set_str("error", e),
+            Option::None => {}
+        }
+        obj.stringify()
+    }
+}

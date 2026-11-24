@@ -1,0 +1,120 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Extended license variants, error taxonomy, and Ed25519 token verification (crates/protocol/src/license.rs).
+
+use protocol_license::*;
+
+#[derive(Copy)]
+pub enum LicenseType {
+    Free,
+    NdaTrial(str),
+    Production(str),
+}
+
+#[derive(Copy)]
+pub enum LicenseError {
+    InvalidFormat,
+    InvalidSignature,
+    Expired,
+    DecodeError,
+}
+
+#[capabilities(pure)]
+pub fn license_error_message(err: LicenseError) -> str {
+    match err {
+        LicenseError::InvalidFormat => "Invalid license format. Expected payload.signature",
+        LicenseError::InvalidSignature => "Invalid cryptographic signature",
+        LicenseError::Expired => "License expired",
+        LicenseError::DecodeError => "Base64 decoding failed",
+    }
+}
+
+#[capabilities(pure)]
+pub fn license_type_label(lt: LicenseType) -> str {
+    match lt {
+        LicenseType::Free => "Free",
+        LicenseType::NdaTrial(org) => "NdaTrial:" + org,
+        LicenseType::Production(org) => "Production:" + org,
+    }
+}
+
+#[capabilities(pure)]
+pub fn license_type_to_tier(lt: LicenseType) -> LicenseTier {
+    match lt {
+        LicenseType::Free => LicenseTier::Free,
+        LicenseType::NdaTrial(_org) => LicenseTier::NdaTrial,
+        LicenseType::Production(_org) => LicenseTier::Production,
+    }
+}
+
+#[capabilities(pure)]
+fn parse_tier_from_json(tier_str: str) -> LicenseTier {
+    if tier_str == "Production" {
+        return LicenseTier::Production;
+    }
+    if tier_str == "NdaTrial" {
+        return LicenseTier::NdaTrial;
+    }
+    LicenseTier::Free
+}
+
+#[capabilities(pure)]
+fn split_token_parts(token: str) -> Result<Vec<str>, LicenseError> {
+    if !token.contains(".") || token.starts_with(".") {
+        return Result::<Vec<str>, LicenseError>::Err(LicenseError::InvalidFormat);
+    }
+    let payload_b64 = regex::find("^[^.]+", token);
+    let sig_b64 = regex::replace_all("^[^.]+\\.", token, "");
+    if payload_b64.len() == 0 || sig_b64.len() == 0 || sig_b64.contains(".") {
+        return Result::<Vec<str>, LicenseError>::Err(LicenseError::InvalidFormat);
+    }
+    let mut parts = Vec::<str>::new();
+    parts.push(payload_b64);
+    parts.push(sig_b64);
+    Result::<Vec<str>, LicenseError>::Ok(parts)
+}
+
+#[capabilities(pure)]
+fn build_license_payload(obj: &Json) -> LicensePayload {
+    let mut mods = Vec::<str>::new();
+    let mod_str = obj.get_str("module");
+    if mod_str.len() > 0 {
+        mods.push(mod_str);
+    }
+    LicensePayload {
+        tier: parse_tier_from_json(obj.get_str("tier")),
+        issued_at: obj.get_i64("issued_at"),
+        expires_at: obj.get_i64("expires_at"),
+        machine_id: obj.get_str("machine_id"),
+        modules: mods,
+    }
+}
+
+#[capabilities(pure)]
+pub fn verify_license_token(
+    token: str,
+    pubkey: &Bytes,
+    now_ts: i64,
+) -> Result<LicensePayload, LicenseError>
+    requires now_ts >= 0 && pubkey.len() == 32
+{
+    let parts = split_token_parts(token)?;
+    let payload_b64 = parts.get(0);
+    let sig_b64 = parts.get(1);
+    let payload_bytes = encoding::base64_decode(payload_b64);
+    let sig_bytes = encoding::base64_decode(sig_b64);
+    if payload_bytes.len() == 0 || sig_bytes.len() != 64 {
+        return Result::<LicensePayload, LicenseError>::Err(LicenseError::DecodeError);
+    }
+    if !crypto::ed25519_verify(pubkey, &payload_bytes, &sig_bytes) {
+        return Result::<LicensePayload, LicenseError>::Err(LicenseError::InvalidSignature);
+    }
+    let obj = json::parse(payload_bytes.to_utf8());
+    if !obj.is_valid() {
+        return Result::<LicensePayload, LicenseError>::Err(LicenseError::DecodeError);
+    }
+    let payload = build_license_payload(&obj);
+    if is_license_active(&payload, now_ts).is_err() {
+        return Result::<LicensePayload, LicenseError>::Err(LicenseError::Expired);
+    }
+    Result::<LicensePayload, LicenseError>::Ok(payload)
+}

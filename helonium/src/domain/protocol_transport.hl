@@ -1,0 +1,43 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Protocol transport client service (crates/protocol/src/transport.rs).
+
+use ports::transport_port::TransportPort;
+use domain::protocol_cmd_requests::*;
+use domain::protocol_cmd_responses::*;
+
+pub service ProtocolTransportService {
+    inject transport: &mut TransportPort,
+}
+
+#[capabilities(pure)]
+pub fn encode_request_frame(req: CommandRequest) -> str {
+    let mut obj = json::object();
+    obj.set_str("type", command_request_tag(req));
+    obj.stringify() + "\n"
+}
+
+#[capabilities(pure)]
+pub fn encode_response_frame(res: CommandResponse) -> str {
+    let mut obj = json::object();
+    obj.set_str("type", command_response_tag(res));
+    obj.stringify() + "\n"
+}
+
+impl ProtocolTransportService {
+    #[capabilities(pure)]
+    pub fn send_request(&mut self, req: CommandRequest) -> Result<i64, str> {
+        let line = encode_request_frame(req);
+        self.transport.send_request_line(line)
+    }
+
+    #[capabilities(pure)]
+    pub fn send_response(&mut self, res: CommandResponse) -> Result<i64, str> {
+        let line = encode_response_frame(res);
+        self.transport.send_response_line(line)
+    }
+
+    #[capabilities(pure)]
+    pub fn frame_count(&self) -> i64 {
+        self.transport.total_frames()
+    }
+}

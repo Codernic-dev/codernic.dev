@@ -1,0 +1,104 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+use ports::engine_vtables::*;
+use ports::ui_chassis_ports::*;
+use domain::protocol_transport::*;
+use domain::protocol_cmd_requests::*;
+use domain::protocol_cmd_responses::*;
+use domain::pirsig_protocol::*;
+use domain::vtable_client::*;
+use domain::ui_manager_service::*;
+use adapters::memory_protocol_adapters::*;
+use adapters::vtable_adapters::*;
+use adapters::memory_ui_chassis::*;
+use mocks::protocol_chassis::*;
+
+#[test]
+#[capabilities(pure)]
+fn test_transport_and_pirsig_hmac_protocol() {
+    let mut tx = InMemoryInterprocessTransport::new();
+    let mut tsvc = ProtocolTransportService::wire(&mut tx);
+    assert_eq(tsvc.send_request(CommandRequest::Ping).is_ok(), true);
+    assert_eq(tsvc.send_response(CommandResponse::Pong).is_ok(), true);
+    assert_eq(tsvc.frame_count(), 2);
+    assert_eq(tx.last_request().contains("Ping"), true);
+    assert_eq(tx.last_response().contains("Pong"), true);
+
+    let mut mock_tx = MockTransportPort { frames: 0, last_payload: "" };
+    let mut msvc = ProtocolTransportService::wire(&mut mock_tx);
+    assert_eq(msvc.send_request(CommandRequest::GetHealth).is_ok(), true);
+    assert_eq(msvc.frame_count(), 1);
+
+    let key = Bytes::from_str("super_secret_key");
+    let wrong = Bytes::from_str("wrong_secret");
+    let nonce = "123e4567-e89b-12d3-a456-426614174000";
+    let sig = compute_sig_bytes(&key, nonce);
+    assert_eq(verify_sig_bytes(&key, nonce, sig), true);
+    assert_eq(verify_sig_bytes(&wrong, nonce, sig), false);
+    assert_eq(verify_sig_bytes(&key, "other", sig), false);
+    assert_eq(verify_sig_bytes(&key, nonce, "bad_sig"), false);
+
+    let env_sec = argon::secret_env("PIRSIG_HEALTH_SECRET");
+    let auth_adapter = HmacPirsigAuthAdapter::new();
+    let psvc = PirsigHealthService::wire(&auth_adapter);
+    let hreq = HealthRequest { nonce };
+    let hresp = psvc.build_response(env_sec, hreq, "0.6.482");
+    assert_eq(psvc.verify_response(env_sec, hreq, hresp), true);
+}
+
+#[test]
+#[capabilities(pure)]
+fn test_engine_vtables_service_and_adapters() {
+    let mut deming = InMemoryDemingAdapter::new();
+    let mut galileus = InMemoryGalileusAdapter::new();
+    let hw = InMemoryHwProbeAdapter::new("{\"device\":\"Apple M4\"}");
+    let mut ockham = InMemoryOckhamAdapter::new();
+    let mut ragtime = InMemoryRagtimeAdapter::new();
+
+    let mut svc = EngineVTableService::wire(&mut deming, &mut galileus, &hw, &mut ockham, &mut ragtime);
+    let d_res = svc.run_deming_probe("qwen.gguf", "metal", 1024);
+    assert_eq(d_res.is_ok(), true);
+    let d_sum = d_res.unwrap_or(VTableDiagnosticSummary {
+        gguf_version: 0, tensor_count: 0, backend: "", strategy_ok: false,
+        dag_result: "", vulkan_caps: "", dedup_seen: false, quality_report: "", rag_hits: "",
+    });
+    assert_eq(d_sum.gguf_version, 3);
+    assert_eq(d_sum.tensor_count, 291);
+    assert_eq(d_sum.backend, "metal");
+    assert_eq(d_sum.strategy_ok, true);
+
+    let o_res = svc.run_orchestration_probe("dag-1", "/ws", "find auth");
+    assert_eq(o_res.is_ok(), true);
+    assert_eq(ffi_backend_name(FfiBackendType::Metal), "metal");
+    assert_eq(ffi_backend_name(FfiBackendType::Vulkan), "vulkan");
+}
+
+#[test]
+#[capabilities(pure)]
+fn test_codernic_ui_manager_and_git_engine() {
+    let mut git = InMemoryGitEngine::new();
+    git.track_file("src/main.hl", "modified");
+    let mut daemon = InMemoryDaemonRuntime::new();
+    let mut vault = InMemoryConfigVault::new();
+
+    let mut mgr = CodernicManagerService::wire(&mut git, &mut daemon, &mut vault);
+    assert_eq(mgr.start_daemon(49152).is_ok(), true);
+    assert_eq(mgr.get_daemon_status(49152).contains("true"), true);
+    assert_eq(mgr.get_telemetry_stats(49152).blocked_requests, 0);
+    assert_eq(mgr.save_global_config("bind_address: \"127.0.0.1:49152\"\n").is_ok(), true);
+    assert_eq(mgr.get_global_config().is_ok(), true);
+    let lic_key = argon::secret_env("CODERNIC_LICENSE_TEST");
+    assert_eq(mgr.set_license(lic_key).is_ok(), true);
+    assert_eq(mgr.get_license_status(2000).is_active, true);
+    assert_eq(mgr.generate_ssrm("qwen-7b", "tadeo").is_ok(), true);
+    assert_eq(mgr.git_status("/repo").is_ok(), true);
+    assert_eq(mgr.git_branch_list("/repo").is_ok(), true);
+    assert_eq(mgr.git_commit("/repo", "feat: migrate").is_ok(), true);
+    assert_eq(mgr.stop_daemon().is_ok(), true);
+    assert_eq(mgr.factory_reset().is_ok(), true);
+
+    let mut mock_git = MockGitEngine { commit_hash: "deadbeef" };
+    let mut d2 = InMemoryDaemonRuntime::new();
+    let mut v2 = InMemoryConfigVault::new();
+    let mut mgr2 = CodernicManagerService::wire(&mut mock_git, &mut d2, &mut v2);
+    assert_eq(mgr2.git_commit("/repo", "test").unwrap_or(""), "deadbeef");
+}

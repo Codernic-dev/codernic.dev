@@ -1,7 +1,34 @@
 {
   "name": "codernic-dev-protocol",
   "version": "1.0.0",
-  "description": "Helonium v2.0 dual-stack mirror for codernic.dev core protocol",
+  "description": "Helonium v2.0 dual-stack mirror for codernic.dev protocol, b2b pirsig-protocol, and codernic-ui chassis",
   "capabilities": ["pure"],
-  "exports": ["protocol_dag", "protocol_license", "protocol_hw"]
+  "exports": [
+    "protocol_dag",
+    "protocol_license",
+    "protocol_hw",
+    "ports/template_resolver",
+    "ports/file_probe",
+    "ports/transport_port",
+    "ports/engine_vtables",
+    "ports/pirsig_auth",
+    "ports/ui_chassis_ports",
+    "domain/protocol_api",
+    "domain/protocol_license_ext",
+    "domain/protocol_dag_config",
+    "domain/protocol_erathos",
+    "domain/protocol_models",
+    "domain/protocol_cmd_types",
+    "domain/protocol_cmd_req_payloads",
+    "domain/protocol_cmd_requests",
+    "domain/protocol_cmd_resp_payloads",
+    "domain/protocol_cmd_responses",
+    "domain/protocol_transport",
+    "domain/pirsig_protocol",
+    "domain/vtable_client",
+    "domain/ui_manager_service",
+    "adapters/memory_protocol_adapters",
+    "adapters/vtable_adapters",
+    "adapters/memory_ui_chassis"
+  ]
 }

@@ -7,6 +7,8 @@
 //!
 //! The **Protocol Crate** defines the core data structures and communication interfaces for the AI Agencee system.
 
+#![deprecated(note = "Superseded by Helonium v2.0 (helonium/); Rust layer is no longer maintained.")]
+
 pub mod api;
 pub mod commands;
 pub mod dag;

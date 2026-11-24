@@ -1,0 +1,121 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+use protocol_dag::*;
+use protocol_license::*;
+use domain::protocol_api::*;
+use domain::protocol_license_ext::*;
+use domain::protocol_dag_config::*;
+use domain::protocol_erathos::*;
+use domain::protocol_models::*;
+use domain::protocol_cmd_types::*;
+use domain::protocol_cmd_req_payloads::*;
+use domain::protocol_cmd_requests::*;
+use domain::protocol_cmd_resp_payloads::*;
+use domain::protocol_cmd_responses::*;
+use adapters::memory_protocol_adapters::*;
+use mocks::protocol_chassis::*;
+
+#[test]
+#[capabilities(pure)]
+fn test_unified_result_and_license_ed25519_verification() {
+    let ok_res = UnifiedResult::success("{\"ok\":true}");
+    assert_eq(ok_res.to_json().contains("\"success\":true"), true);
+    let err_res = UnifiedResult::error("boom");
+    assert_eq(err_res.to_json().contains("\"error\":\"boom\""), true);
+    assert_eq(license_error_message(LicenseError::InvalidSignature), "Invalid cryptographic signature");
+    assert_eq(license_type_label(LicenseType::Production("Acme")), "Production:Acme");
+    let is_prod = match license_type_to_tier(LicenseType::Production("Acme")) {
+        LicenseTier::Production => true,
+        _ => false,
+    };
+    assert_eq(is_prod, true);
+
+    let seed = Bytes::from_hex("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20");
+    let pubk = crypto::ed25519_derive_pub(&seed);
+    let payload_bytes = Bytes::from_str("{\"tier\":\"Production\",\"issued_at\":100,\"expires_at\":900,\"machine_id\":\"m4\",\"module\":\"dna\"}");
+    let sig = crypto::ed25519_sign(&seed, &payload_bytes);
+    let tok = encoding::base64_encode(&payload_bytes) + "." + encoding::base64_encode(&sig);
+    let verified = verify_license_token(tok, &pubk, 500);
+    assert_eq(verified.is_ok(), true);
+    let expired = verify_license_token(tok, &pubk, 1000);
+    assert_eq(expired.is_err(), true);
+    assert_eq(verify_license_token("badtoken", &pubk, 500).is_err(), true);
+}
+
+#[test]
+#[capabilities(pure)]
+fn test_dag_config_indexing_and_erathos_validator() {
+    let idx_cfg = IndexingConfig {
+        root_path: "/repo", project_id: Option::<str>::Some("p1"), pooling_strategy: "mean",
+        model_type: "nomic", languages: Option::<str>::None, exclude_patterns: Option::<str>::None,
+        additional_roots: Vec::<str>::new(), respect_gitignore: true, json_output: false, max_concurrency: Option::<i64>::Some(4),
+    };
+    assert_eq(idx_cfg.respect_gitignore, true);
+    let mut cfg = DagConfig::new("enterprise-build");
+    let l1 = LaneNodeRow {
+        id: "plan", agent_file: "plan.md", supervisor_file: Option::<str>::None,
+        paradigm: Option::<AgentParadigm>::Some(AgentParadigm::Linear),
+        skill: Option::<str>::None, input_context_json: Option::<str>::None, metadata_json: Option::<str>::None,
+    };
+    let l2 = LaneNodeRow {
+        id: "exec", agent_file: "exec.md", supervisor_file: Option::<str>::None,
+        paradigm: Option::<AgentParadigm>::Some(AgentParadigm::ReAct),
+        skill: Option::<str>::None, input_context_json: Option::<str>::None, metadata_json: Option::<str>::None,
+    };
+    assert_eq(cfg.add_lane(l1).is_ok(), true);
+    assert_eq(cfg.add_lane(l2).is_ok(), true);
+    cfg.deps.push(LaneDepEdge { lane_id: "exec", depends_on: "plan" });
+    cfg.barriers.push(BarrierParticipantRow { barrier_name: "sync", participant_lane: "exec", timeout_ms: Option::<i64>::Some(5000) });
+    assert_eq(cfg.validate().is_ok(), true);
+    let ev = DagExecutionEvent::LaneCompleted(LaneEventMeta { lane_id: "plan", timestamp: 1, chunk: "", exit_code: 0, error: "" });
+    assert_eq(dag_execution_event_kind(ev), "LaneCompleted");
+
+    let mut reg = InMemoryTemplateRegistry::new();
+    reg.register("agent_node", "{\"required_csv\":\"role\"}");
+    let mut ents = Vec::<ErathosEntity>::new();
+    ents.push(ErathosEntity { id: "e1", name: "Planner", template_id: "agent_node", status: EntityStatus::Planned, progress: 0, properties_json: "{\"role\":\"architect\"}" });
+    let contract = ErathosSchemaContract { schema_id: "s1", description: Option::<str>::None, entities: ents, links: Vec::<ErathosLink>::new() };
+    let val_svc = ErathosValidatorService::wire(&reg);
+    assert_eq(val_svc.validate(&contract).is_ok(), true);
+    assert_eq(entity_status_label(EntityStatus::Done), "Done");
+    let missing_reg = MockTemplateResolver { schema_json: "" };
+    let bad_svc = ErathosValidatorService::wire(&missing_reg);
+    assert_eq(bad_svc.validate(&contract).is_err(), true);
+}
+
+#[test]
+#[capabilities(pure)]
+fn test_models_validation_and_commands_taxonomy() {
+    let mut files = InMemoryFilePresenceAdapter::new();
+    files.register_file("model.gguf");
+    let mut w = Vec::<str>::new();
+    w.push("model.gguf");
+    let def = LocalModelDefinition {
+        model_id: "qwen", weights_paths: w, config_path: "", tokenizer_path: "",
+        context_window: 8192, gpu_layers: Option::<i64>::Some(32), use_mlock: Option::<bool>::Some(true),
+    };
+    let svc = ModelValidationService::wire(&files);
+    assert_eq(svc.validate(&def).is_ok(), true);
+    assert_eq(config_error_message(ConfigError::FileNotFound("x")), "Required file not found on disk: x");
+    assert_eq(supervisor_decision_label(SupervisorDecision::Continue), "Continue");
+    assert_eq(inference_event_label(InferenceEvent::Token("hi")), "Token:hi");
+
+    let mut msgs = ChatMessageList::new();
+    msgs.push(ChatMessage { role: "user", content: "audit" });
+    let msgs_json = msgs.encode_json();
+    assert_eq(msgs_json.contains("audit"), true);
+    let tok = argon::secret_env("CODERNIC_TEST_AUTH");
+    let req = CommandRequest::ExecuteAsk(ExecuteAskPayload {
+        task_id: "t1", model_id: "qwen", messages_json: msgs_json, max_tokens: 512,
+        use_rag: true, route_profile: Option::<str>::None, project_id: Option::<str>::None, auth_token: Option::<Secret<str>>::Some(tok),
+    });
+    assert_eq(command_request_tag(req), "ExecuteAsk");
+    assert_eq(command_request_tag(CommandRequest::GetStatus), "GetStatus");
+    assert_eq(command_request_tag(CommandRequest::GetVersion), "GetVersion");
+    assert_eq(command_request_tag(CommandRequest::Ping), "Ping");
+    assert_eq(command_response_tag(CommandResponse::Pong), "Pong");
+    assert_eq(command_response_tag(CommandResponse::IndexingDone), "IndexingDone");
+    assert_eq(command_response_tag(CommandResponse::Done), "Done");
+    let tel = TelemetryEvent::LockAcquired(LockTelemetry { lock_id: "l1", task_id: "t1" });
+    assert_eq(telemetry_event_kind(tel), "LockAcquired");
+    assert_eq(command_response_tag(CommandResponse::Telemetry(tel)), "Telemetry");
+}

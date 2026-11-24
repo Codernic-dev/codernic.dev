@@ -1,0 +1,122 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Full CommandResponse enum (35 variants) mirroring crates/protocol/src/commands.rs.
+
+use domain::protocol_cmd_types::*;
+use domain::protocol_cmd_resp_payloads::*;
+use domain::protocol_dag_config::DagExecutionEvent;
+use domain::protocol_models::InferenceEvent;
+
+#[derive(Copy)]
+pub enum CommandResponse {
+    Inference(InferenceEvent),
+    Dag(DagExecutionEvent),
+    PlanTopology(str),
+    AstMetrics(AstMetricsPayload),
+    IndexingProgress(IndexingProgressPayload),
+    IndexingDone,
+    IndexingError(str),
+    Status(DaemonStatusPayload),
+    MetricsReport(i64),
+    Health(CoreHealthPayload),
+    Version(VersionPayload),
+    Telemetry(TelemetryEvent),
+    ModeTransition(ModeTransitionPayload),
+    RequestToolApproval(RequestToolApprovalPayload),
+    AgentEvent(str),
+    EgressBlockedNotification(EgressBlockedPayload),
+    ResourceExhaustedNotification(ResourceExhaustedPayload),
+    AggregatorSyncComplete(AggregatorSyncPayload),
+    ModelBenchmarks(str),
+    Done,
+    Error(str),
+    SessionsList(str),
+    SessionLoaded(SessionLoadedPayload),
+    SessionDeleted(str),
+    AssetContent(AssetContentPayload),
+    ToolCall(ToolCallPayload),
+    ToolResponse(ToolResponsePayload),
+    HfdProgress(HfdProgressPayload),
+    HfdDone,
+    HfdError(str),
+    Pong,
+    UiLayoutUpdate(str),
+    CloudModelsResult(str),
+    AddCloudModelResult(AddCloudModelResultPayload),
+    ModelDeleted(ModelDeletedPayload),
+}
+
+#[capabilities(pure)]
+fn cmd_resp_tag_a(res: CommandResponse) -> str {
+    match res {
+        CommandResponse::Inference(_p) => "Inference",
+        CommandResponse::Dag(_p) => "Dag",
+        CommandResponse::PlanTopology(_p) => "PlanTopology",
+        CommandResponse::AstMetrics(_p) => "AstMetrics",
+        CommandResponse::IndexingProgress(_p) => "IndexingProgress",
+        CommandResponse::IndexingDone => "IndexingDone",
+        CommandResponse::IndexingError(_p) => "IndexingError",
+        CommandResponse::Status(_p) => "Status",
+        CommandResponse::MetricsReport(_p) => "MetricsReport",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_resp_tag_b(res: CommandResponse) -> str {
+    match res {
+        CommandResponse::Health(_p) => "Health",
+        CommandResponse::Version(_p) => "Version",
+        CommandResponse::Telemetry(_p) => "Telemetry",
+        CommandResponse::ModeTransition(_p) => "ModeTransition",
+        CommandResponse::RequestToolApproval(_p) => "RequestToolApproval",
+        CommandResponse::AgentEvent(_p) => "AgentEvent",
+        CommandResponse::EgressBlockedNotification(_p) => "EgressBlockedNotification",
+        CommandResponse::ResourceExhaustedNotification(_p) => "ResourceExhaustedNotification",
+        CommandResponse::AggregatorSyncComplete(_p) => "AggregatorSyncComplete",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_resp_tag_c(res: CommandResponse) -> str {
+    match res {
+        CommandResponse::ModelBenchmarks(_p) => "ModelBenchmarks",
+        CommandResponse::Done => "Done",
+        CommandResponse::Error(_p) => "Error",
+        CommandResponse::SessionsList(_p) => "SessionsList",
+        CommandResponse::SessionLoaded(_p) => "SessionLoaded",
+        CommandResponse::SessionDeleted(_p) => "SessionDeleted",
+        CommandResponse::AssetContent(_p) => "AssetContent",
+        CommandResponse::ToolCall(_p) => "ToolCall",
+        CommandResponse::ToolResponse(_p) => "ToolResponse",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+fn cmd_resp_tag_d(res: CommandResponse) -> str {
+    match res {
+        CommandResponse::HfdProgress(_p) => "HfdProgress",
+        CommandResponse::HfdDone => "HfdDone",
+        CommandResponse::HfdError(_p) => "HfdError",
+        CommandResponse::Pong => "Pong",
+        CommandResponse::UiLayoutUpdate(_p) => "UiLayoutUpdate",
+        CommandResponse::CloudModelsResult(_p) => "CloudModelsResult",
+        CommandResponse::AddCloudModelResult(_p) => "AddCloudModelResult",
+        CommandResponse::ModelDeleted(_p) => "ModelDeleted",
+        _ => "",
+    }
+}
+
+#[capabilities(pure)]
+pub fn command_response_tag(res: CommandResponse) -> str {
+    let a = cmd_resp_tag_a(res);
+    if a.len() > 0 { return a; }
+    let b = cmd_resp_tag_b(res);
+    if b.len() > 0 { return b; }
+    let c = cmd_resp_tag_c(res);
+    if c.len() > 0 { return c; }
+    let d = cmd_resp_tag_d(res);
+    if d.len() > 0 { return d; }
+    "Unknown"
+}

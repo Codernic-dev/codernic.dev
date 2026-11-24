@@ -1,0 +1,98 @@
+// Copyright (c) 2026 Codernic Sovereign AI Engineering. All rights reserved.
+// Erathos dynamic schema contract & validator service (crates/protocol/src/erathos.rs).
+
+use ports::template_resolver::TemplateResolverPort;
+
+#[derive(Copy)]
+pub enum EntityStatus {
+    Planned,
+    InProgress,
+    Done,
+}
+
+#[derive(Copy)]
+pub struct ErathosEntity {
+    pub id: str,
+    pub name: str,
+    pub template_id: str,
+    pub status: EntityStatus,
+    pub progress: i64,
+    pub properties_json: str,
+}
+
+#[derive(Copy)]
+pub struct ErathosLink {
+    pub id: str,
+    pub source: str,
+    pub target: str,
+    pub label: Option<str>,
+}
+
+pub struct ErathosSchemaContract {
+    pub schema_id: str,
+    pub description: Option<str>,
+    pub entities: Vec<ErathosEntity>,
+    pub links: Vec<ErathosLink>,
+}
+
+#[capabilities(pure)]
+pub fn entity_status_label(st: EntityStatus) -> str {
+    match st {
+        EntityStatus::Planned => "Planned",
+        EntityStatus::InProgress => "InProgress",
+        EntityStatus::Done => "Done",
+    }
+}
+
+pub service ErathosValidatorService {
+    inject templates: &TemplateResolverPort,
+}
+
+#[capabilities(pure)]
+fn validate_entity_against_schema(
+    entity: ErathosEntity,
+    schema_json_str: str,
+) -> Result<bool, str> {
+    let schema = json::parse(schema_json_str);
+    if !schema.is_valid() {
+        return Result::<bool, str>::Err("Invalid JSON Schema for template " + entity.template_id);
+    }
+    let props = json::parse(entity.properties_json);
+    if !props.is_valid() {
+        return Result::<bool, str>::Err("Entity " + entity.id + " properties must be valid JSON");
+    }
+    let req_csv = schema.get_str("required_csv");
+    if req_csv.len() == 0 {
+        return Result::<bool, str>::Ok(true);
+    }
+    let req_keys = regex::find_all("[a-zA-Z0-9_]+", req_csv);
+    let mut i: i64 = 0;
+    while i < req_keys.len() {
+        let key = req_keys.get(i);
+        if props.get_str(key).len() == 0 && props.get_i64(key) == 0 && !props.get_bool(key) {
+            return Result::<bool, str>::Err("Entity " + entity.id + " missing required property " + key);
+        }
+        i = i + 1;
+    }
+    Result::<bool, str>::Ok(true)
+}
+
+impl ErathosValidatorService {
+    #[capabilities(pure)]
+    pub fn validate(&self, contract: &ErathosSchemaContract) -> Result<bool, str> {
+        let mut i: i64 = 0;
+        while i < contract.entities.len() {
+            let entity = contract.entities.get(i);
+            let schema_opt = self.templates.resolve_template(entity.template_id);
+            let schema_str = match schema_opt {
+                Option::Some(s) => s,
+                Option::None => {
+                    return Result::<bool, str>::Err("Template " + entity.template_id + " not found for entity " + entity.id);
+                }
+            };
+            validate_entity_against_schema(entity, schema_str)?;
+            i = i + 1;
+        }
+        Result::<bool, str>::Ok(true)
+    }
+}
